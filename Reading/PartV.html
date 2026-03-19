@@ -1,0 +1,1549 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Part 5 - Full Practice Test</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: white;
+            padding: 26px 28px;
+            text-align: center;
+        }
+        .header h1 { margin: 0 0 6px 0; font-size: 2.1em; }
+        .header p { margin: 0; opacity: 0.95; }
+
+        .score-panel {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f8f9fa;
+            border-bottom: 3px solid #185a9d;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+        .score-item { text-align: center; }
+        .score-label { font-size: 0.85em; color: #666; }
+        .score-value { font-size: 1.7em; font-weight: 800; }
+        .score-value.correct { color: #28a745; }
+        .score-value.incorrect { color: #dc3545; }
+        .score-value.total { color: #17a2b8; }
+
+        button {
+            padding: 10px 18px;
+            background-color: #185a9d;
+            color: white;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+        button:hover { filter: brightness(0.95); }
+
+        .content { padding: 22px; }
+
+        .question-container {
+            background: #fff;
+            padding: 18px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            border: 2px solid #eef1f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .question {
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #222;
+        }
+        .translation {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 8px 0;
+            padding: 10px 10px;
+            cursor: pointer;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: #fff;
+            transition: transform 0.08s ease, border-color 0.15s ease;
+        }
+        .options label:hover {
+            border-color: #185a9d;
+            transform: translateX(4px);
+        }
+        .options input {
+            margin-right: 10px;
+            accent-color: #185a9d;
+            transform: scale(1.1);
+        }
+        .feedback {
+            display: none;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            font-weight: 800;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .footer {
+            padding: 18px 22px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #eef1f5;
+            background: #fafbfe;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TOEIC Part 5 - Full Practice Test</h1>
+            <p>Incomplete Sentences - Chọn đáp án để xem đúng/sai ngay (sai được chọn lại)</p>
+        </div>
+        <div class="score-panel">
+            <div class="score-item">
+                <div class="score-label">Correct</div>
+                <div class="score-value correct" id="correctScore">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Progress</div>
+                <div class="score-value total" id="totalScore">0/0</div>
+            </div>
+            <div class="score-item">
+                <button onclick="resetQuiz()">Reset</button>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Incorrect</div>
+                <div class="score-value incorrect" id="incorrectScore">0</div>
+            </div>
+        </div>
+        <div class="content" id="quiz-container"></div>
+        <div class="footer">@nntrang</div>
+    </div>
+
+    <script>
+        const questions = [
+  {
+    "id": 101,
+    "question": "According to the sign posted in front of the main office, the repair center is now …………new management.",
+    "translation": "",
+    "options": [
+      {"text": "A. over", "value": "A"},
+      {"text": "B. around", "value": "B"},
+      {"text": "C. between", "value": "C"},
+      {"text": "D. under", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 102,
+    "question": "………….you are no doubt aware, the new security system requires the installation of a backup power source in case an emergency situation arises.",
+    "translation": "",
+    "options": [
+      {"text": "A. As", "value": "A"},
+      {"text": "B. For", "value": "B"},
+      {"text": "C. With", "value": "C"},
+      {"text": "D. So", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 103,
+    "question": "After a highly profitable first six months, the restaurant's profits for the second half of the year were a great…………..",
+    "translation": "",
+    "options": [
+      {"text": "A. disappoints", "value": "A"},
+      {"text": "B. disappointed", "value": "B"},
+      {"text": "C. disappointing", "value": "C"},
+      {"text": "D. disappointment", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 104,
+    "question": "Naturally, our company utilizes the production process ……….. guarantees the most satisfactory results.",
+    "translation": "",
+    "options": [
+      {"text": "A. that", "value": "A"},
+      {"text": "B. who", "value": "B"},
+      {"text": "C. what", "value": "C"},
+      {"text": "D. how", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 105,
+    "question": "The unexpected surge in the prices of steel and other minerals will result in a dramatic increase in tax ………….. this year.",
+    "translation": "",
+    "options": [
+      {"text": "A. rates", "value": "A"},
+      {"text": "B. charges", "value": "B"},
+      {"text": "C. expenses", "value": "C"},
+      {"text": "D. revenues", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 106,
+    "question": "Company strategists ……………. predicted that conditions in the Middle East would eventually stabilize and result in expanded sales.",
+    "translation": "",
+    "options": [
+      {"text": "A. wrong", "value": "A"},
+      {"text": "B. wronged", "value": "B"},
+      {"text": "C. wrongly", "value": "C"},
+      {"text": "D. wrongness", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 107,
+    "question": "The director …………….. has often been seen to take his lunch in the staff canteen along with the other workers.",
+    "translation": "",
+    "options": [
+      {"text": "A. him", "value": "A"},
+      {"text": "B. his", "value": "B"},
+      {"text": "C. himself", "value": "C"},
+      {"text": "D. he", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 108,
+    "question": "The secretary filling in at the reception desk has been performing so well that management is considering offering her a ………….. position.",
+    "translation": "",
+    "options": [
+      {"text": "A. durable", "value": "A"},
+      {"text": "B. periodic", "value": "B"},
+      {"text": "C. binding", "value": "C"},
+      {"text": "D. permanent", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 109,
+    "question": "Ms. Harris was extremely ……………… to take an opportunity to thank you for all of the hard-working and dedication.",
+    "translation": "",
+    "options": [
+      {"text": "A. happy", "value": "A"},
+      {"text": "B. happily", "value": "B"},
+      {"text": "C. happier", "value": "C"},
+      {"text": "D. happiness", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 110,
+    "question": "………………. in computer technology have allowed technicians to perform multi-dimensional graphics far better than ever before.",
+    "translation": "",
+    "options": [
+      {"text": "A. Advance", "value": "A"},
+      {"text": "B. Advancing", "value": "B"},
+      {"text": "C. Advancement", "value": "C"},
+      {"text": "D. Advances", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 111,
+    "question": "To gain access to confidential company documents, employees require ………………. from the operations manager.",
+    "translation": "",
+    "options": [
+      {"text": "A. clear", "value": "A"},
+      {"text": "B. clarify", "value": "B"},
+      {"text": "C. clarity", "value": "C"},
+      {"text": "D. clearance", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 112,
+    "question": "The Department of the Environment supports the replacement of introduced plants with ……………. plants that require much less watering.",
+    "translation": "",
+    "options": [
+      {"text": "A. native", "value": "A"},
+      {"text": "B. nativity", "value": "B"},
+      {"text": "C. natively", "value": "C"},
+      {"text": "D. nativeness", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 113,
+    "question": "Ms. Julie Kennedy and her innovative marketing team have gained renown for creating …………………. products for struggling companies.",
+    "translation": "",
+    "options": [
+      {"text": "A. promote", "value": "A"},
+      {"text": "B. promotes", "value": "B"},
+      {"text": "C. promotion", "value": "C"},
+      {"text": "D. promotional", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 114,
+    "question": "The Department of Social Welfare's report this year indicated that it is focusing ………….on the homeless and long-term unemployed.",
+    "translation": "",
+    "options": [
+      {"text": "A. distinctly", "value": "A"},
+      {"text": "B. individually", "value": "B"},
+      {"text": "C. exceptionally", "value": "C"},
+      {"text": "D. particularly", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 115,
+    "question": "ABC Shoe Store asked …………….. to make their final selections and bring them to cashiers' stations within 30 minutes.",
+    "translation": "",
+    "options": [
+      {"text": "A. shopper", "value": "A"},
+      {"text": "B. shopping", "value": "B"},
+      {"text": "C. to shop", "value": "C"},
+      {"text": "D. shoppers", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 116,
+    "question": "In next month's issue, …………..coupons offering a steep discount for new subscriptions only.",
+    "translation": "",
+    "options": [
+      {"text": "A. were inserting", "value": "A"},
+      {"text": "B. have been inserted", "value": "B"},
+      {"text": "C. had inserted", "value": "C"},
+      {"text": "D. will be inserting", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 117,
+    "question": "Under ……………. circumstances, the CEO would have approved the pay increases, but this year it was not possible.",
+    "translation": "",
+    "options": [
+      {"text": "A. favorable", "value": "A"},
+      {"text": "B. favorably", "value": "B"},
+      {"text": "C. favor", "value": "C"},
+      {"text": "D. favorite", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 118,
+    "question": "Consultation with the appropriate experts is essential if we are to arrive at an ………….. decision.",
+    "translation": "",
+    "options": [
+      {"text": "A. informed", "value": "A"},
+      {"text": "B. obtained", "value": "B"},
+      {"text": "C. enlightened", "value": "C"},
+      {"text": "D. acquainted", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 119,
+    "question": "As of October 1, Carla Fishermen will …………….. the company as its interface in all dealings with the local government.",
+    "translation": "",
+    "options": [
+      {"text": "A. accommodate", "value": "A"},
+      {"text": "B. perform", "value": "B"},
+      {"text": "C. attend", "value": "C"},
+      {"text": "D. represent", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 120,
+    "question": "Although he did not perform ………………. well as a student, he went on to become one of the most respected scholars in his field.",
+    "translation": "",
+    "options": [
+      {"text": "A. especially", "value": "A"},
+      {"text": "B. sufficiently", "value": "B"},
+      {"text": "C. desperately", "value": "C"},
+      {"text": "D. excellently", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 121,
+    "question": "After the earthquake, the building was ……………. unsafe since its foundation was badly damaged.",
+    "translation": "",
+    "options": [
+      {"text": "A. maximized", "value": "A"},
+      {"text": "B. erected", "value": "B"},
+      {"text": "C. arranged", "value": "C"},
+      {"text": "D. declared", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 122,
+    "question": "The upcoming convention invites …………….. from anyone working or having research interests in the field.",
+    "translation": "",
+    "options": [
+      {"text": "A. contributions", "value": "A"},
+      {"text": "B. solutions", "value": "B"},
+      {"text": "C. additions", "value": "C"},
+      {"text": "D. subscription", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 123,
+    "question": "Health inspections are conducted …………….. at restaurants throughout the province for the purpose of maintaining high standards of hygiene.",
+    "translation": "",
+    "options": [
+      {"text": "A. extremely", "value": "A"},
+      {"text": "B. marginally", "value": "B"},
+      {"text": "C. overly", "value": "C"},
+      {"text": "D. routinely", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 124,
+    "question": "Several exciting new pieces of equipment ………………………. in our gymnasium, and we invite you to come and try them out at no cost during the next week.",
+    "translation": "",
+    "options": [
+      {"text": "A. install", "value": "A"},
+      {"text": "B. installed", "value": "B"},
+      {"text": "C. have install", "value": "C"},
+      {"text": "D. have been installed", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 125,
+    "question": "All drivers are required to maintain ……….. logbooks accurately and to hand them in to the central office before leaving on Friday night.",
+    "translation": "",
+    "options": [
+      {"text": "A. its", "value": "A"},
+      {"text": "B. his", "value": "B"},
+      {"text": "C. our", "value": "C"},
+      {"text": "D. their", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 126,
+    "question": "As you would expect at one of the world's most reputable hotels, the ……………. is prompt, efficient, and discreet.",
+    "translation": "",
+    "options": [
+      {"text": "A. exertion", "value": "A"},
+      {"text": "B. decision", "value": "B"},
+      {"text": "C. challenge", "value": "C"},
+      {"text": "D. service", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 127,
+    "question": "Rexington Engineering has recently set up an entire new research …………… because of the increasing interest in robotic technology.",
+    "translation": "",
+    "options": [
+      {"text": "A. separation", "value": "A"},
+      {"text": "B. partition", "value": "B"},
+      {"text": "C. segmentation", "value": "C"},
+      {"text": "D. division", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 128,
+    "question": "A small group of contestants has been selected following a nationwide search …………….. over the last six months.",
+    "translation": "",
+    "options": [
+      {"text": "A. alerted", "value": "A"},
+      {"text": "B. engaged", "value": "B"},
+      {"text": "C. protected", "value": "C"},
+      {"text": "D. conducted", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 129,
+    "question": "The chief financial officer believes that we should maintain the present course, …………. his deputy.",
+    "translation": "",
+    "options": [
+      {"text": "A. as to", "value": "A"},
+      {"text": "B. whereas", "value": "B"},
+      {"text": "C. so does", "value": "C"},
+      {"text": "D. as long as", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 130,
+    "question": "One of the leading companies, Big Star agreed to buy ………… drug company for 10 billion dollars.",
+    "translation": "",
+    "options": [
+      {"text": "A. rival", "value": "A"},
+      {"text": "B. compromising", "value": "B"},
+      {"text": "C. renewed", "value": "C"},
+      {"text": "D. contrasting", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 131,
+    "question": "Because there were too many participants at the seminar, we should ………… them into smaller groups for discussion.",
+    "translation": "",
+    "options": [
+      {"text": "A. divisible", "value": "A"},
+      {"text": "B. division", "value": "B"},
+      {"text": "C. dividing", "value": "C"},
+      {"text": "D. divide", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 132,
+    "question": "…………. wanting to apply for maternity leave should let their immediate supervisor know about their plans at least one month in advance.",
+    "translation": "",
+    "options": [
+      {"text": "A. Them", "value": "A"},
+      {"text": "B. That", "value": "B"},
+      {"text": "C. One", "value": "C"},
+      {"text": "D. Those", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 133,
+    "question": "Electron Recycling has developed a profitable business by recycling metals retrieved from ……………. electronic components.",
+    "translation": "",
+    "options": [
+      {"text": "A. discarded", "value": "A"},
+      {"text": "B. extended", "value": "B"},
+      {"text": "C. unoccupied", "value": "C"},
+      {"text": "D. suppressed", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 134,
+    "question": "The new head of marketing is already making his mark on the company even though he only arrived 6 weeks ago.",
+    "translation": "",
+    "options": [
+      {"text": "A. carried", "value": "A"},
+      {"text": "B. elapsed", "value": "B"},
+      {"text": "C. deliberated", "value": "C"},
+      {"text": "D. arrived", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 135,
+    "question": "The FM convenience store in the central park is ………….. situated and it is always busy with many customers.",
+    "translation": "",
+    "options": [
+      {"text": "A. conveniently", "value": "A"},
+      {"text": "B. promptly", "value": "B"},
+      {"text": "C. greatly", "value": "C"},
+      {"text": "D. widely", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 136,
+    "question": "Once you have paid the appropriate student fees, you will be able to …………. the medical, recreational, and other facilities.",
+    "translation": "",
+    "options": [
+      {"text": "A. access", "value": "A"},
+      {"text": "B. accessed", "value": "B"},
+      {"text": "C. accessory", "value": "C"},
+      {"text": "D. accessible", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 137,
+    "question": "Although the ……………… for the best design will be very fierce, Mr. Gozalas has a good chance of getting the award.",
+    "translation": "",
+    "options": [
+      {"text": "A. competitively", "value": "A"},
+      {"text": "B. competitive", "value": "B"},
+      {"text": "C. compete", "value": "C"},
+      {"text": "D. competition", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 138,
+    "question": "While we still take telephone calls, other …………….. of correspondence are encouraged to avoid tying up telephone lines unnecessarily.",
+    "translation": "",
+    "options": [
+      {"text": "A. profiles", "value": "A"},
+      {"text": "B. views", "value": "B"},
+      {"text": "C. outlines", "value": "C"},
+      {"text": "D. forms", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 139,
+    "question": "Numerous speakers came forward to express their gratitude ………. the retiring secretary's unfailing courtesy and efficiency.",
+    "translation": "",
+    "options": [
+      {"text": "A. for", "value": "A"},
+      {"text": "B. at", "value": "B"},
+      {"text": "C. to", "value": "C"},
+      {"text": "D. with", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 140,
+    "question": "…………… we hire more factory workers, we cannot meet the deadline for the products on time.",
+    "translation": "",
+    "options": [
+      {"text": "A. Unless", "value": "A"},
+      {"text": "B. Also", "value": "B"},
+      {"text": "C. Except", "value": "C"},
+      {"text": "D. Therefore", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 141,
+    "question": "……………… the recent sales campaign was not as successful as we had expected, our new range of goods has been well reviewed by consumer groups.",
+    "translation": "",
+    "options": [
+      {"text": "A. Instead of", "value": "A"},
+      {"text": "B. Notwithstanding", "value": "B"},
+      {"text": "C. Although", "value": "C"},
+      {"text": "D. Whereas", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 142,
+    "question": "The giant pharmaceutical company insists that its new drug is …………….. as long as it is used under the supervision of a doctor.",
+    "translation": "",
+    "options": [
+      {"text": "A. perfect", "value": "A"},
+      {"text": "B. perfection", "value": "B"},
+      {"text": "C. perfectly", "value": "C"},
+      {"text": "D. perfecting", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 143,
+    "question": "……………. you have familiarized yourself with the basic commands, we can begin to learn some of this program's more creative features.",
+    "translation": "",
+    "options": [
+      {"text": "A. Already", "value": "A"},
+      {"text": "B. Before", "value": "B"},
+      {"text": "C. Once", "value": "C"},
+      {"text": "D. Earlier", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 144,
+    "question": "It is true that the number of traffic accidents involving cyclists has increased ……………… over the last 10 years.",
+    "translation": "",
+    "options": [
+      {"text": "A. meagerly", "value": "A"},
+      {"text": "B. fundamentally", "value": "B"},
+      {"text": "C. significantly", "value": "C"},
+      {"text": "D. adequately", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 145,
+    "question": "Students can ……………… in the university’s education program starting July 6th.",
+    "translation": "",
+    "options": [
+      {"text": "A. Enroll", "value": "A"},
+      {"text": "B. Admit", "value": "B"},
+      {"text": "C. Apply", "value": "C"},
+      {"text": "D. Subscribe", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 146,
+    "question": "Hyssop Chemists is ………….. experienced pharmacists for the eight new locations they have opened this year.",
+    "translation": "",
+    "options": [
+      {"text": "A. seeking", "value": "A"},
+      {"text": "B. looking", "value": "B"},
+      {"text": "C. entering", "value": "C"},
+      {"text": "D. requiring", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 147,
+    "question": "This is an excellent time to consider changing jobs because of the large number of positions ------ available in the mining sector.",
+    "translation": "",
+    "options": [
+      {"text": "A. commonly", "value": "A"},
+      {"text": "B. currently", "value": "B"},
+      {"text": "C. actively", "value": "C"},
+      {"text": "D. approvingly", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 148,
+    "question": "The waitress said there weren't any tables open, but she would call my name once one became ..............",
+    "translation": "",
+    "options": [
+      {"text": "A. availability", "value": "A"},
+      {"text": "B. availably", "value": "B"},
+      {"text": "C. avail", "value": "C"},
+      {"text": "D. available", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 149,
+    "question": "A light and healthy lunch followed by some exercise will make workers ------- more productive in the afternoon.",
+    "translation": "",
+    "options": [
+      {"text": "A. complete", "value": "A"},
+      {"text": "B. much", "value": "B"},
+      {"text": "C. ample", "value": "C"},
+      {"text": "D. greatly", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 150,
+    "question": "It is becoming .............. more difficult to find designers who are familiar with this software.",
+    "translation": "",
+    "options": [
+      {"text": "A. progress", "value": "A"},
+      {"text": "B. progressive", "value": "B"},
+      {"text": "C. progression", "value": "C"},
+      {"text": "D. progressively", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 151,
+    "question": "Of the six employees in ______ department he is the hardest working one.",
+    "translation": "",
+    "options": [
+      {"text": "A. himself", "value": "A"},
+      {"text": "B. him", "value": "B"},
+      {"text": "C. he", "value": "C"},
+      {"text": "D. his", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 152,
+    "question": "The Technical Department is currently formulating written guidelines ------- the use of our micro-publishing facilities.",
+    "translation": "",
+    "options": [
+      {"text": "A. in", "value": "A"},
+      {"text": "B. for", "value": "B"},
+      {"text": "C. at", "value": "C"},
+      {"text": "D. with", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 153,
+    "question": "Actually, the Department of Transportation is responsible .............. approving roadwork permits in the county.",
+    "translation": "",
+    "options": [
+      {"text": "A. by", "value": "A"},
+      {"text": "B. to", "value": "B"},
+      {"text": "C. at", "value": "C"},
+      {"text": "D. for", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 154,
+    "question": "------- leaving school, she has worked in a variety of positions but has not yet found one which suits her talents or interests.",
+    "translation": "",
+    "options": [
+      {"text": "A. Despite", "value": "A"},
+      {"text": "B. Since", "value": "B"},
+      {"text": "C. In spite of", "value": "C"},
+      {"text": "D. If", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 155,
+    "question": "Analysts regarded the ..............between the construction giants a win-win situation for both companies.",
+    "translation": "",
+    "options": [
+      {"text": "A. factor", "value": "A"},
+      {"text": "B. management", "value": "B"},
+      {"text": "C. authority", "value": "C"},
+      {"text": "D. alliance", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 156,
+    "question": "For such a large building project, you'll need to take out a massive loan to raise the necessary..............",
+    "translation": "",
+    "options": [
+      {"text": "A. assistance", "value": "A"},
+      {"text": "B. timeline", "value": "B"},
+      {"text": "C. institution", "value": "C"},
+      {"text": "D. capital", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 157,
+    "question": "An investment ________ gradually increases in value over the years can be more profitable than more short-term alternatives.",
+    "translation": "",
+    "options": [
+      {"text": "A. that", "value": "A"},
+      {"text": "B. they", "value": "B"},
+      {"text": "C. what", "value": "C"},
+      {"text": "D. when", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 158,
+    "question": "Maurice Robertson, _________an executive at a small company, became the CEO of Bradshaw Industries four months ago.",
+    "translation": "",
+    "options": [
+      {"text": "A. once", "value": "A"},
+      {"text": "B. often", "value": "B"},
+      {"text": "C. soon", "value": "C"},
+      {"text": "D. now", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 159,
+    "question": "An independent investigator ------- a report on the company's financial operations which, for some unknown reason, was never released.",
+    "translation": "",
+    "options": [
+      {"text": "A. contracted", "value": "A"},
+      {"text": "B. confirmed", "value": "B"},
+      {"text": "C. compiled", "value": "C"},
+      {"text": "D. converted", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 160,
+    "question": "Windpower Co. is faced with financial hardship, so in order to overcome this crisis, ______ financial support is needed.",
+    "translation": "",
+    "options": [
+      {"text": "A. extend", "value": "A"},
+      {"text": "B. extent", "value": "B"},
+      {"text": "C. extensive", "value": "C"},
+      {"text": "D. extending", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 161,
+    "question": "Thanks to the advances in technology the state-of-the-art device is made _______ out of plastic.",
+    "translation": "",
+    "options": [
+      {"text": "A. totaling", "value": "A"},
+      {"text": "B. total", "value": "B"},
+      {"text": "C. totally", "value": "C"},
+      {"text": "D. totaled", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 162,
+    "question": "Mr. Fukui _______ washes his hands with anti-bacterial detergent right after coming home.",
+    "translation": "",
+    "options": [
+      {"text": "A. habitual", "value": "A"},
+      {"text": "B. habit", "value": "B"},
+      {"text": "C. habitually", "value": "C"},
+      {"text": "D. habits", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 163,
+    "question": "Please read the ------- passages carefully, and then answer the multiple choice questions below within the time allotted.",
+    "translation": "",
+    "options": [
+      {"text": "A. consecutive", "value": "A"},
+      {"text": "B. constant", "value": "B"},
+      {"text": "C. following", "value": "C"},
+      {"text": "D. subsequent", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 164,
+    "question": "The sudden rainstorm arrived -------, leaving a trail of damage which many predict will take some time to repair.",
+    "translation": "",
+    "options": [
+      {"text": "A. unexpected", "value": "A"},
+      {"text": "B. unexpectant", "value": "B"},
+      {"text": "C. unexpectedly", "value": "C"},
+      {"text": "D. unexpectedness", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 165,
+    "question": "Please accept our _______ apology for the mistakes that we made on the last project.",
+    "translation": "",
+    "options": [
+      {"text": "A. accurate", "value": "A"},
+      {"text": "B. estimated", "value": "B"},
+      {"text": "C. sincere", "value": "C"},
+      {"text": "D. completed", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 166,
+    "question": "BMC publishing company will be checking the article _______ mistakes and edit it before printing.",
+    "translation": "",
+    "options": [
+      {"text": "A. barring", "value": "A"},
+      {"text": "B. over", "value": "B"},
+      {"text": "C. for", "value": "C"},
+      {"text": "D. from", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 167,
+    "question": "Please place your luggage in the overhead locker, and ensure that the locker is closed -------.",
+    "translation": "",
+    "options": [
+      {"text": "A. secure", "value": "A"},
+      {"text": "B. securely", "value": "B"},
+      {"text": "C. securable", "value": "C"},
+      {"text": "D. secureness", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 168,
+    "question": "We would like to inform our employees that any complaints should be ------- to their union representative at first.",
+    "translation": "",
+    "options": [
+      {"text": "A. outlined", "value": "A"},
+      {"text": "B. addressed", "value": "B"},
+      {"text": "C. focused", "value": "C"},
+      {"text": "D. applied", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 169,
+    "question": "The new tax cuts are designed ------ low-income earners and those with young families.",
+    "translation": "",
+    "options": [
+      {"text": "A. benefits", "value": "A"},
+      {"text": "B. to benefit", "value": "B"},
+      {"text": "C. benefited", "value": "C"},
+      {"text": "D. benefiting", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 170,
+    "question": "The budget to be released later this week will ------- reduce spending on employee facilities such as the sports center.",
+    "translation": "",
+    "options": [
+      {"text": "A. due to", "value": "A"},
+      {"text": "B. most likely", "value": "B"},
+      {"text": "C. want", "value": "C"},
+      {"text": "D. be", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 171,
+    "question": "Following media criticism ------- the Defense Secretary's performance, the President today spoke in his defense at a special press conference.",
+    "translation": "",
+    "options": [
+      {"text": "A. at", "value": "A"},
+      {"text": "B. of", "value": "B"},
+      {"text": "C. for", "value": "C"},
+      {"text": "D. from", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 172,
+    "question": "----- good evaluations from their immediate bosses should be the main objective of those who wish to be promoted this year.",
+    "translation": "",
+    "options": [
+      {"text": "A. Attain", "value": "A"},
+      {"text": "B. Attained", "value": "B"},
+      {"text": "C. Attaining", "value": "C"},
+      {"text": "D. Attainable", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 173,
+    "question": "The sales manager often takes the employees in his team out to dinner ……….. his own expense.",
+    "translation": "",
+    "options": [
+      {"text": "A. at", "value": "A"},
+      {"text": "B. by", "value": "B"},
+      {"text": "C. from", "value": "C"},
+      {"text": "D. with", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 174,
+    "question": "There ……… some speculation among reporters that Governor Angela Gray may not show up at her weekly press briefing tomorrow.",
+    "translation": "",
+    "options": [
+      {"text": "A. is", "value": "A"},
+      {"text": "B. to be", "value": "B"},
+      {"text": "C. are", "value": "C"},
+      {"text": "D. being", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 175,
+    "question": "Participants are welcome to ……….. important questions with the seminar leader at any time during the presentation.",
+    "translation": "",
+    "options": [
+      {"text": "A. make", "value": "A"},
+      {"text": "B. raise", "value": "B"},
+      {"text": "C. give", "value": "C"},
+      {"text": "D. reach", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 176,
+    "question": "The new advertising campaign has already proven to be much more effective ……… the previous one.",
+    "translation": "",
+    "options": [
+      {"text": "A. than", "value": "A"},
+      {"text": "B. as", "value": "B"},
+      {"text": "C. so", "value": "C"},
+      {"text": "D. for", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 177,
+    "question": "Entries for the Science Fair competition should be sent to the Lacefield Community Center ……….. June 17 at the latest.",
+    "translation": "",
+    "options": [
+      {"text": "A. until", "value": "A"},
+      {"text": "B. by", "value": "B"},
+      {"text": "C. at", "value": "C"},
+      {"text": "D. for", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 178,
+    "question": "Once ……….. into the program, interns will go through an orientation course designed to familiarize them with the division's procedures.",
+    "translation": "",
+    "options": [
+      {"text": "A. accept", "value": "A"},
+      {"text": "B. accepting", "value": "B"},
+      {"text": "C. accepted", "value": "C"},
+      {"text": "D. acceptance", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 179,
+    "question": "By clicking on the web-link below, you will ……….. your customer account with Johnson's Online Shopping.",
+    "translation": "",
+    "options": [
+      {"text": "A. energize", "value": "A"},
+      {"text": "B. activate", "value": "B"},
+      {"text": "C. stimulate", "value": "C"},
+      {"text": "D. prompt", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 180,
+    "question": "Since June 2006, the customer relations department ……….. over 50 complaints from clients.",
+    "translation": "",
+    "options": [
+      {"text": "A. has received", "value": "A"},
+      {"text": "B. was received", "value": "B"},
+      {"text": "C. receive", "value": "C"},
+      {"text": "D. will have received", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 181,
+    "question": "King's Technical College, which was founded in 1611, is the……….. educational institution in the region.",
+    "translation": "",
+    "options": [
+      {"text": "A. old", "value": "A"},
+      {"text": "B. older", "value": "B"},
+      {"text": "C. oldest", "value": "C"},
+      {"text": "D. elderly", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 182,
+    "question": "Recent statistics indicate that young people are becoming more interested in ….. a career in the hospitality industry.",
+    "translation": "",
+    "options": [
+      {"text": "A. attracting", "value": "A"},
+      {"text": "B. facilitating", "value": "B"},
+      {"text": "C. pursuing", "value": "C"},
+      {"text": "D. organizing", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 183,
+    "question": "There will be several breaks ……….. the day in order to give conference attendees time to get refreshments and use the bathroom facilities.",
+    "translation": "",
+    "options": [
+      {"text": "A. throughout", "value": "A"},
+      {"text": "B. under", "value": "B"},
+      {"text": "C. as", "value": "C"},
+      {"text": "D. among", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 184,
+    "question": "The management at Gina's Tropical resort would like to remind guests to search ……… room for personal belongings before checking out at reception.",
+    "translation": "",
+    "options": [
+      {"text": "A. they", "value": "A"},
+      {"text": "B. their", "value": "B"},
+      {"text": "C. theirs", "value": "C"},
+      {"text": "D. them", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 185,
+    "question": "……….. merchandise has been packaged and is now ready to be transported from the warehouse to the retail outlets.",
+    "translation": "",
+    "options": [
+      {"text": "A. A", "value": "A"},
+      {"text": "B. Each", "value": "B"},
+      {"text": "C. Some", "value": "C"},
+      {"text": "D. These", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 186,
+    "question": "In order to………… a yearly growth rate of six percent, we'll need to expand our product line while increasing the size of our investment.",
+    "translation": "",
+    "options": [
+      {"text": "A. remain", "value": "A"},
+      {"text": "B. organize", "value": "B"},
+      {"text": "C. sustain", "value": "C"},
+      {"text": "D. aim", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 187,
+    "question": "There is a ………….. in the agreement for either side to back out of the deal if certain terms are not fulfilled.",
+    "translation": "",
+    "options": [
+      {"text": "A. provision", "value": "A"},
+      {"text": "B. projection", "value": "B"},
+      {"text": "C. property", "value": "C"},
+      {"text": "D. profession", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 188,
+    "question": "Next year, our agent in Shanghai will be in charge ….. distributing our products throughout China.",
+    "translation": "",
+    "options": [
+      {"text": "A. for", "value": "A"},
+      {"text": "B. by", "value": "B"},
+      {"text": "C. of", "value": "C"},
+      {"text": "D. from", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 189,
+    "question": "Mr. Burroughs ………….. in the human resources division for 25 years by the time he leaves the company next month.",
+    "translation": "",
+    "options": [
+      {"text": "A. has worked", "value": "A"},
+      {"text": "B. had worked", "value": "B"},
+      {"text": "C. will have worked", "value": "C"},
+      {"text": "D. would work", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 190,
+    "question": "Many candidates for Duostand Co. were pleased to see the application process ………….. on the company website.",
+    "translation": "",
+    "options": [
+      {"text": "A. simplified", "value": "A"},
+      {"text": "B. reimbursed", "value": "B"},
+      {"text": "C. dominated", "value": "C"},
+      {"text": "D. obtained", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 191,
+    "question": "We can either drive to the community center to attend the lecture ………… listen to it on the Internet.",
+    "translation": "",
+    "options": [
+      {"text": "A. or", "value": "A"},
+      {"text": "B. and", "value": "B"},
+      {"text": "C. nor", "value": "C"},
+      {"text": "D. but", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 192,
+    "question": "Our legal advisor suggested that it would be in our best interests to ………….. the lawsuit as quickly as possible.",
+    "translation": "",
+    "options": [
+      {"text": "A. confess", "value": "A"},
+      {"text": "B. settle", "value": "B"},
+      {"text": "C. witness", "value": "C"},
+      {"text": "D. shield", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 193,
+    "question": "One of our most ………… workers, Charles always completes his tasks ahead of team schedule.",
+    "translation": "",
+    "options": [
+      {"text": "A. efficient", "value": "A"},
+      {"text": "B. symbolic", "value": "B"},
+      {"text": "C. useless", "value": "C"},
+      {"text": "D. repeated", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 194,
+    "question": "The presenter showed a series of slides ………….. detailed the results of her year-long study.",
+    "translation": "",
+    "options": [
+      {"text": "A. which", "value": "A"},
+      {"text": "B. whose", "value": "B"},
+      {"text": "C. whom", "value": "C"},
+      {"text": "D. who", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 195,
+    "question": "An important …………..for this position is the ability to speak both Spanish and English.",
+    "translation": "",
+    "options": [
+      {"text": "A. notification", "value": "A"},
+      {"text": "B. publication", "value": "B"},
+      {"text": "C. qualification", "value": "C"},
+      {"text": "D. proportion", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 196,
+    "question": "Wedding cakes are the chef's ………….. , but he also creates wonderful Italian pasta dishes.",
+    "translation": "",
+    "options": [
+      {"text": "A. specialize", "value": "A"},
+      {"text": "B. specialty", "value": "B"},
+      {"text": "C. special", "value": "C"},
+      {"text": "D. specialist", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 197,
+    "question": "Once we receive verification that the shipment has been delivered, we will ………… the remainder of the unpaid bill.",
+    "translation": "",
+    "options": [
+      {"text": "A. suppose", "value": "A"},
+      {"text": "B. remit", "value": "B"},
+      {"text": "C. outsource", "value": "C"},
+      {"text": "D. standardize", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 198,
+    "question": "Since we have already ………… on a replacement for Ms. Leung, I think we can remove the topic from the meeting's agenda.",
+    "translation": "",
+    "options": [
+      {"text": "A. deciding", "value": "A"},
+      {"text": "B. decision", "value": "B"},
+      {"text": "C. decided", "value": "C"},
+      {"text": "D. decide", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 199,
+    "question": "Later this month, Hideki Koiwa will deliver his………… of the risks and benefits of investing in Chilean stocks.",
+    "translation": "",
+    "options": [
+      {"text": "A. expansion", "value": "A"},
+      {"text": "B. analysis", "value": "B"},
+      {"text": "C. shipment", "value": "C"},
+      {"text": "D. expert", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 200,
+    "question": "Bridgeland Holding's ………….. is to refrain from commenting on political issues, so we are unable to answer the reporter's questions.",
+    "translation": "",
+    "options": [
+      {"text": "A. policy", "value": "A"},
+      {"text": "B. innocence", "value": "B"},
+      {"text": "C. election", "value": "C"},
+      {"text": "D. summons", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 201,
+    "question": "Should you experience ------- in obtaining access to the building on the weekend, please contact the Security Department.",
+    "translation": "",
+    "options": [
+      {"text": "A. hardness", "value": "A"},
+      {"text": "B. difficulty", "value": "B"},
+      {"text": "C. burden", "value": "C"},
+      {"text": "D. predicament", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 202,
+    "question": "As we -------- in our guidelines for applicants, please submit documents in triplicate before 5:00 p.m. on Friday.",
+    "translation": "",
+    "options": [
+      {"text": "A. exceeded", "value": "A"},
+      {"text": "B. indicated", "value": "B"},
+      {"text": "C. conducted", "value": "C"},
+      {"text": "D. reserved", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  }
+];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionState = new Map();
+        let correctCount = 0;
+        let incorrectCount = 0;
+
+        function recomputeScore() {
+            let c = 0;
+            let i = 0;
+            for (const v of questionState.values()) {
+                if (v === true) c++;
+                else if (v === false) i++;
+            }
+            correctCount = c;
+            incorrectCount = i;
+        }
+
+        function updateScore() {
+            const totalAnswered = questionState.size;
+            const totalQuestions = questions.length;
+            document.getElementById('correctScore').textContent = String(correctCount);
+            document.getElementById('incorrectScore').textContent = String(incorrectCount);
+            document.getElementById('totalScore').textContent = `${totalAnswered}/${totalQuestions}`;
+        }
+
+        function lockQuestion(qid) {
+            const labels = document.querySelectorAll(`input[name="q${qid}"]`);
+            labels.forEach(inp => {
+                const lab = inp.closest('label');
+                if (lab) {
+                    lab.style.pointerEvents = 'none';
+                    lab.style.opacity = '0.75';
+                }
+            });
+        }
+
+        function resetQuiz() {
+            correctCount = 0;
+            incorrectCount = 0;
+            questionState.clear();
+
+            document.querySelectorAll('input[type="radio"]').forEach(i => (i.checked = false));
+            document.querySelectorAll('.feedback').forEach(f => {
+                f.classList.remove('show', 'correct', 'incorrect');
+                f.textContent = '';
+            });
+            document.querySelectorAll('.options label').forEach(lab => {
+                lab.style.pointerEvents = 'auto';
+                lab.style.opacity = '1';
+                lab.style.borderColor = '#e9ecef';
+                lab.style.background = '#fff';
+            });
+
+            updateScore();
+        }
+
+        questions.forEach(q => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            questionDiv.innerHTML = `
+                <div class="question">Question ${q.id}. ${q.question}</div>
+                <div class="translation">${q.translation}</div>
+                <div class="options">
+                    ${q.options.map(opt => `
+                        <label>
+                            <input type="radio" name="q${q.id}" value="${opt.value}">
+                            ${opt.text}
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback${q.id}"></div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const radios = questionDiv.querySelectorAll(`input[name="q${q.id}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (questionState.get(q.id) === true) {
+                        return;
+                    }
+                    const feedback = document.getElementById(`feedback${q.id}`);
+
+                    // reset all labels in this question
+                    questionDiv.querySelectorAll('.options label').forEach(lab => {
+                        lab.style.borderColor = '#e9ecef';
+                        lab.style.background = '#fff';
+                        lab.style.opacity = '1';
+                        lab.style.pointerEvents = 'auto';
+                    });
+
+                    const correctOpt = q.options.find(opt => opt.value === q.correctAnswer);
+                    const isCorrect = radio.value === q.correctAnswer;
+                    questionState.set(q.id, isCorrect);
+                    recomputeScore();
+
+                    feedback.classList.add('show');
+                    if (isCorrect) {
+                        feedback.textContent = `✅ Correct! The answer is (${q.correctAnswer})`;
+                        feedback.classList.remove('incorrect');
+                        feedback.classList.add('correct');
+                        lockQuestion(q.id);
+                    } else {
+                        feedback.textContent = `❌ Incorrect. Try again. Correct answer is (${q.correctAnswer}) ${correctOpt ? correctOpt.text : ''}`;
+                        feedback.classList.remove('correct');
+                        feedback.classList.add('incorrect');
+                    }
+
+                    const selectedLabel = radio.closest('label');
+                    if (selectedLabel) {
+                        selectedLabel.style.borderColor = isCorrect ? '#28a745' : '#dc3545';
+                        selectedLabel.style.background = isCorrect ? '#d4edda' : '#f8d7da';
+                        selectedLabel.style.opacity = '1';
+                    }
+
+                    updateScore();
+                });
+            });
+        });
+
+        updateScore();
+    </script>
+</body>
+</html>

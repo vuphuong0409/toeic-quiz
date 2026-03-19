@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Part 6 - Full Practice Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .score-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom: 3px solid #667eea;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .score-value.correct {
+            color: #28a745;
+        }
+        
+        .score-value.incorrect {
+            color: #dc3545;
+        }
+        
+        .score-value.total {
+            color: #17a2b8;
+        }
+        
+        .reset-btn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .reset-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .passage {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .passage h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .passage-text {
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+            font-size: 1.05em;
+        }
+        
+        .question-block {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .question-block:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .options {
+            margin-top: 15px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .option:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        
+        .option label {
+            cursor: pointer;
+            font-size: 1.05em;
+            flex: 1;
+        }
+        
+        .answer-feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .answer-feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        
+        .answer-feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+        
+        .answer-feedback.show {
+            display: block;
+        }
+        
+        .option.selected-correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .option.selected-incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .passage-divider {
+            height: 3px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            margin: 40px 0;
+            border-radius: 2px;
+        }
+
+        .footer {
+            padding: 18px 22px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #eef1f5;
+            background: #fafbfe;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 TOEIC Part 6 - Full Practice Test</h1>
+            <p>Text Completion - 52 Questions Total</p>
+        </div>
+        
+        <div class="score-panel">
+            <div class="score-item">
+                <div class="score-label">Correct</div>
+                <div class="score-value correct" id="correctScore">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Progress</div>
+                <div class="score-value total" id="totalScore">0/52</div>
+            </div>
+            <div class="score-item">
+                <button class="reset-btn" onclick="resetQuiz()">🔄 Reset Quiz</button>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Incorrect</div>
+                <div class="score-value incorrect" id="incorrectScore">0</div>
+            </div>
+        </div>
+        
+        <div class="content" id="questionsContainer">
+            <!-- Questions will be dynamically generated here -->
+        </div>
+        <div class="footer">@nntrang</div>
+    </div>
+
+    <script>
+        // All questions data with passages and correct answers
+        const questionsData = [
+            {
+                passage: "Email - Job Application Response",
+                text: `From: Pauline Campbell [mailto:pauline.campbell@power.recruit.com]
+To: Mr. Justin Long
+Sent: Tues, 20 Jun 2007 2:44PM
+Subject: Thank You
+
+First I'd like to thank you for taking the time to forward your resume and for expressing your interest in employment opportunities with RECRUIT USA, Inc. Your ________ (141) will be reviewed within the next few business days.
+
+Should your qualifications ________ (142) our requirements, we will contact you directly to arrange an interview. ________ (143) the volume of applications we receive, we cannot guarantee that your resume will stay on file for an extended period of time.
+
+We wish you the best of luck in your pursuit of new career opportunities and thank you again for your interest in RECRUIT USA, Inc.
+
+Sincerely,
+Pauline Campbell
+Human Resources
+RECRUIT USA, Inc.`,
+                questions: [
+                    { id: 'q141', num: '141', options: ['employment', 'application', 'subscription', 'administration'], answer: 'B' },
+                    { id: 'q142', num: '142', options: ['agree', 'equal', 'match', 'test'], answer: 'C' },
+                    { id: 'q143', num: '143', options: ['Due to', 'Even though', 'In spite of', 'In addition to'], answer: 'A' }
+                ]
+            },
+            {
+                passage: "ST. VINCENT'S HOSPITAL",
+                text: `ST. VINCENT'S HOSPITAL
+Leading with Innovation, Serving with Compassion
+
+At St. Vincent's Hospital in Kansas, we are planning to conduct a six-month ________ (144) comparing the potential benefits of two dietary approaches to ________ (145) blood sugar.
+
+Twenty individuals currently taking tablets for diabetes but who have clean bills of health are ________ (146) in the Kansas area. If you feel that you want to participate in this study, please get in contact with Dr. Sullivan's research group at St. Vincent's Hospital. The number is 755-8989.`,
+                questions: [
+                    { id: 'q144', num: '144', options: ['work', 'insight', 'glance', 'study'], answer: 'D' },
+                    { id: 'q145', num: '145', options: ['reduce', 'reducing', 'be reduced', 'to reduce'], answer: 'A' },
+                    { id: 'q146', num: '146', options: ['sought', 'accepted', 'approved', 'in demand'], answer: 'A' }
+                ]
+            },
+            {
+                passage: "STARGATE SAUNA AND SPA",
+                text: `STARGATE SAUNA AND SPA
+
+Recover, relax, and revive at the Stargate Sauna and Spa. Start with a sauna or steam, soak in a relaxing spa, ________ (147) revitalize and soothe your soul with one of Stargate's massages.
+
+Choose from a traditional Chinese massage, Korean style, aromatherapy, body scrub, or a good old-fashioned head and foot massage. With over 20 professional licensed masseurs on staff every day, we are sure to have the style to suit your ________ (148).
+
+We have separate, luxurious, lounge areas for men and women to relax in. So the next time you feel the need to ________ (149) yourself, come and check us out.
+
+LEVEL 3, ST. LAWRENCE SQUARE MALL
+BUSINESS HOURS: 10AM - 11PM
+PHONE: (205) 755-6987`,
+                questions: [
+                    { id: 'q147', num: '147', options: ['soon', 'after', 'then', 'later'], answer: 'C' },
+                    { id: 'q148', num: '148', options: ['needs', 'duties', 'promises', 'charges'], answer: 'A' },
+                    { id: 'q149', num: '149', options: ['repair', 'recreate', 'rejuvenate', 'renovate'], answer: 'C' }
+                ]
+            },
+            {
+                passage: "Office/Administrative Assistant Job",
+                text: `Energetic, new public relations agency is looking for a ________ (150) talented Office/Administrative Assistant to join and help organize a small but rapidly growing team.
+
+You will have at least 2-3 years office experience, be a self-starter with a 'can-do' attitude, and have the ability to bring order to chaos! Duties will include: word processing such as letters, reports, and proposals; developing PowerPoint presentations; creating and maintaining filing systems; creating Excel spreadsheets; organizing meetings; and managing the diaries of consultants and other general office management duties.
+
+________ (151) experience as an administrative assistant in the PR or media industry is of value, it is not essential. To be successful in this role, you will have excellent communication skills, be ________ (152) in all Microsoft applications, particularly PowerPoint, and have an outstanding eye for details.
+
+The position is open to both part-time and full-time applicants, and flexible working conditions are offered.`,
+                questions: [
+                    { id: 'q150', num: '150', options: ['highness', 'higher', 'highest', 'highly'], answer: 'D' },
+                    { id: 'q151', num: '151', options: ['While', 'If', 'Whether', 'Since'], answer: 'A' },
+                    { id: 'q152', num: '152', options: ['accomplished', 'gifted', 'proficient', 'qualified'], answer: 'C' }
+                ]
+            },
+            {
+                passage: "Sedona, AZ - Satellite Launch",
+                text: `Sedona, AZ - Communications giant Telestar's first satellite was launched this morning. The satellite will be a key factor in increasing communications capacity as the company increases the size of its market in the western USA.
+
+A group of top executives was present in Sedona as the satellite was launched. The satellite should be fully operational ________ (153) 48 hours after its launch. TeleStar's new communications network will then be ________ (154) by the end of June.
+
+The satellite ________ (155) by Dutch company Sendek and cost approximately $200,000,000. As the satellites are expected to bring record revenue to the corporation, the goal is to have several such satellites in space within the next two years.`,
+                questions: [
+                    { id: 'q153', num: '153', options: ['just', 'when', 'so', 'since'], answer: 'A' },
+                    { id: 'q154', num: '154', options: ['operationally', 'operational', 'operation', 'operate'], answer: 'B' },
+                    { id: 'q155', num: '155', options: ['made', 'is making', 'will be made', 'was made'], answer: 'D' }
+                ]
+            },
+            {
+                passage: "Smart Beauty",
+                text: `Every year, women around the world spend billions of dollars on cosmetic skin care products. They buy cleansers, moisturizers, night creams, and serums priced at 100, 200, and even 500 dollars. These items often contain fancy or rare ingredients, and promise to improve skin tone, and prevent wrinkles. These claims are hard to prove scientifically, but women continue to spend large amounts of money ________ (156) these expensive products.
+
+What many women don't realize is that many ________ (157) products are available in regular drugstores for much less money. In fact, these creams and lotions are often made in the same factory using the same ingredients. So before you buy another fancy cosmetic product, consider the simpler and less ________ (158) product; after all, it's probably all the same.`,
+                questions: [
+                    { id: 'q156', num: '156', options: ['over', 'by', 'to', 'on'], answer: 'D' },
+                    { id: 'q157', num: '157', options: ['false', 'similar', 'cautious', 'contrasting'], answer: 'B' },
+                    { id: 'q158', num: '158', options: ['overdue', 'permanent', 'expensive', 'insignificant'], answer: 'C' }
+                ]
+            },
+            {
+                passage: "Safety Procedures Memo",
+                text: `MEMO
+To: All R&D staff
+Subject: Safety procedures
+
+As you know, there was a serious accident in one of our labs last month, resulting in the hospitalization of several people and major property damage. ________ (159), that has led us to undertake a complete review of our safety guidelines.
+
+We are committed to taking whatever steps are necessary to avoid future accidents while ________ (160) our facilities as safe as possible.
+
+Based on the findings of our study, we have crafted a series of 12 new guidelines, which will go into effect starting next Monday. Attached, please find a chart detailing the new rules and the reasoning behind them. This afternoon, you will be given a new set of laboratory equipment, which you will be ________ (161) on by the end of the week.`,
+                questions: [
+                    { id: 'q159', num: '159', options: ['Comparatively', 'Alternatively', 'Surprisingly', 'Consequently'], answer: 'D' },
+                    { id: 'q160', num: '160', options: ['making', 'make', 'having made', 'made'], answer: 'A' },
+                    { id: 'q161', num: '161', options: ['issued', 'trained', 'purchased', 'ordered'], answer: 'B' }
+                ]
+            },
+            {
+                passage: "Job Offer Letter",
+                text: `Dear Marla,
+
+Thank you for responding to our company's job advertisement and attending the interview. We are pleased to offer you the position as a part-time graphics designer.
+
+You ________ (162) to work from 5:00 p.m. to 8:00 p.m., Monday through Friday. You will be paid $1,200 per week for the first six months. After a ________ (163) at the end of this period, you will be considered for a promotion.
+
+Please report to the Human Resources Department on Wednesday, September 4, hand in transcripts of your certificates, and complete any other documents related to your employment. The orientation program for trainees is ________ (164) for the following.`,
+                questions: [
+                    { id: 'q162', num: '162', options: ['are expecting', 'will be expected', 'in expectation', 'may have expected'], answer: 'B' },
+                    { id: 'q163', num: '163', options: ['summary', 'result', 'refund', 'review'], answer: 'D' },
+                    { id: 'q164', num: '164', options: ['scheduled', 'helped', 'briefed', 'assigned'], answer: 'A' }
+                ]
+            },
+            {
+                passage: "Lockers Memo",
+                text: `MEMO
+To: All staff
+From: Charles Beretti
+Date: January 2
+Re: Lockers
+
+You may remember that staff voted last fall to have lockers installed in the lounge area. After a few months searching for the right company to help us with this project, we have good news. We would like to announce that we have ________ (165) LockSmart to complete the installation within the next week.
+
+All staff should be able to utilize these new lockers to store personal items by next Friday, January 8th. Each staff member will be given a key; please get yours from Marleen in the main office. The lockers will be available ________ (166) all times for your security.
+
+We hope that this will make our work environment a secure and happy one. By Monday, LockSmart will begin installation and you may need to stay clear of the lounge area. We are sorry for any inconvenience that ________ (167) by this project, but believe that any short-term inconvenience will be outweighed by the long-term benefits.`,
+                questions: [
+                    { id: 'q165', num: '165', options: ['collaborated', 'contracted', 'decided', 'discounted'], answer: 'B' },
+                    { id: 'q166', num: '166', options: ['at', 'in', 'by', 'on'], answer: 'A' },
+                    { id: 'q167', num: '167', options: ['is caused', 'causes', 'caused', 'has been caused'], answer: 'A' }
+                ]
+            },
+            {
+                passage: "Employee Evaluations",
+                text: `To: All Staff
+
+This is to remind all staff that the management is about to begin conducting the annual employee evaluations. I guess that most workers are already ________ (168) with the evaluation process. However, for employees who are new to the company, let me outline the procedure here briefly.
+
+All employees are ________ (169) to fill out a self-assessment form and hand it in to their immediate supervisors by the end of the week. Sometime later, employees will meet ________ (170) to discuss their work with their manager. These one-on-one meetings will give employees an opportunity to get useful feedback on their performance.
+
+Once the management team has finished writing up the evaluations, every employee will receive a copy of the official report. I hope that you all find this process to be a helpful learning experience.
+
+Thank you.
+Terrence Webb
+Personnel Director, Mason Investment`,
+                questions: [
+                    { id: 'q168', num: '168', options: ['unacquainted', 'familiar', 'casual', 'occupied'], answer: 'B' },
+                    { id: 'q169', num: '169', options: ['require', 'requiring', 'required', 'to require'], answer: 'C' },
+                    { id: 'q170', num: '170', options: ['individually', 'simultaneously', 'impersonally', 'jointly'], answer: 'A' }
+                ]
+            },
+            {
+                passage: "Child Literacy Program",
+                text: `City Initiates Child Literacy Program
+
+New York City officials announced yesterday that they are planning to ________ (171) a child literacy campaign. The new "Books for Kids" program aims to improve children's reading skills. As part of the initiative, the city government will contribute over $100 million dollars to a library development fund.
+
+This will also be in ________ (172) with a widespread publicity campaign raising awareness among parents about the importance of reading.
+
+The city was compelled to act on this issue after a recent study showed children's reading skills to be declining. Many education experts believe that this decrease is a result of television shows and computer games replacing books ________ (173) children's primary form of entertainment. Accordingly, the "Books for Kids" program is being brought in to reverse this worrying trend.`,
+                questions: [
+                    { id: 'q171', num: '171', options: ['launch', 'restrict', 'modify', 'scrutinize'], answer: 'A' },
+                    { id: 'q172', num: '172', options: ['consideration', 'conservation', 'conviction', 'conjunction'], answer: 'D' },
+                    { id: 'q173', num: '173', options: ['for', 'as', 'with', 'in'], answer: 'B' }
+                ]
+            },
+            {
+                passage: "Internet Access on Vacation",
+                text: `As the Internet becomes more important in our lives, people are finding they can't bear to be away from their email for a few days even while on vacation. Hotel chains have been ________ (174) the first organizations to address this modern necessity, outfitting their rooms with Internet access. Some hotels are even lending or renting notebook computers to guests.
+
+For those who prefer something smaller, most new cell phones are equipped with web surfing capabilities. ________ (175), that only works if you have your account set up for Internet access delivered by your local service provider.
+
+To solve that problem for people on the road, tourist spots in many countries now have cell phone booths. Overseas travelers can rent an online capable cell phone for the ________ (176) of their trip, so they won't miss a single email.`,
+                questions: [
+                    { id: 'q174', num: '174', options: ['along', 'at', 'away', 'among'], answer: 'D' },
+                    { id: 'q175', num: '175', options: ['Therefore', 'However', 'Furthermore', 'Subsequently'], answer: 'B' },
+                    { id: 'q176', num: '176', options: ['duration', 'completion', 'itinerary', 'connection'], answer: 'A' }
+                ]
+            },
+            {
+                passage: "Cape Town Emporium Email",
+                text: `To: dmahiangu@salc.com
+From: mflint@starlight.net
+Subject: Cape Town Emporium
+
+Dear Mr. Mahlangu,
+
+Thank you for your email. I'm very glad to hear the construction of the Cape Town Emporium is ________ (177) on schedule.
+
+My warehouse will soon ship a full assortment of Starlight Stationery products to our agent in Cape Town, and they will serve as the shop's initial inventory. Now we're just waiting for your ________ (178) so that we can get underway. As soon as you give us the green light, we'll start on the shop's decorations, shelving, and other fixtures.
+
+One area I'm concerned about is the delay of the parking lot's construction. I'm sure you'll agree the lot is critical to the success of this project, given its location in a district that has a limited number of parking spaces. Any information you can ________ (179) me with regarding that situation will be appreciated.
+
+Best regards,
+Michael Flint
+Director, Starlight Stationery`,
+                questions: [
+                    { id: 'q177', num: '177', options: ['enhancing', 'proceeding', 'modifying', 'receding'], answer: 'B' },
+                    { id: 'q178', num: '178', options: ['contemplation', 'confirmation', 'concentration', 'condemnation'], answer: 'B' },
+                    { id: 'q179', num: '179', options: ['solicit', 'acquire', 'provide', 'deliver'], answer: 'C' }
+                ]
+            },
+            {
+                passage: "Subscribe Magazine Contest",
+                text: `SUBSCRIBE
+
+Today or pick up an ________ (180) at your local newsstand, and get in on the chance to become the winner of our grand prize: a trip for two to Paris, France, with all expenses ________ (181). Plus, five runners-up will win two nights' stays in the Premier Suite at the Hilton Hotel right here in our city.
+
+Yes, a total package valued at over $20,000 dollars will be given away! For a chance to become a ________ (182), drop by your local newsstand or dial 1-800-358-8484 to subscribe today! This offer lasts until October 31.`,
+                questions: [
+                    { id: 'q180', num: '180', options: ['requirement', 'description', 'issue', 'information'], answer: 'C' },
+                    { id: 'q181', num: '181', options: ['earned', 'paid', 'allowed', 'compensated'], answer: 'B' },
+                    { id: 'q182', num: '182', options: ['contributor', 'participant', 'contestant', 'winner'], answer: 'D' }
+                ]
+            },
+            {
+                passage: "Dream maker",
+                text: `Questions 147-149 refer to the following advertisement.
+
+Dreamaker
+The professionals that make your nights comfortable
+
+The Dreamaker Plus ________ (147) ------- the exclusive coil system everyone's been talking about.
+
+For the past 50 years, the experts at Dreamaker have dedicated their time and effort to bring the Americans a good night's rest by using our reliable and proven technology.
+
+Compared to any conventional spring systems available in the industry, the Dreamaker Plus has nearly twice the coils of any others. Quality comfort layers and fabrics ________ (148) ------- to ensure a comfortable and durable sleeping surface.
+
+By increasing the wire thickness in the outer two rows, Dreamaker Plus ________ (149) ------- a firmer seating edge, increases the usable sleeping space, and helps to prevent that "roll out of bed" feeling.`,
+                questions: [
+                    { id: 'qimg_dream_147', num: '147', options: ['takes', 'features', 'accounts', 'calculates'], answer: 'B' },
+                    { id: 'qimg_dream_148', num: '148', options: ['was used', 'have been used', 'are to use', 'will be used'], answer: 'B' },
+                    { id: 'qimg_dream_149', num: '149', options: ['provide', 'provisions', 'providing', 'provides'], answer: 'D' }
+                ]
+            },
+            {
+                passage: "Media Styling",
+                text: `Questions 141-143 refer to the following letter.
+
+Dear Media Styling:
+Last month, I visited your store in Boulder, Colorado to shop for a new home entertainment system. Thanks to the help of a very competent sales associate, Tyler Bolton, I ________ (141) ............ exactly what I needed:
+The Deluxe Styling Audio Visual System.
+
+Tyler was very patient in answering my questions while explaining several technical issues in plain English that I could easily understand. Not only that, but ________ (142) ............ pointed out that with a coupon from the day's newspaper, I could save 15% off the list price. Fortunately I had a paper in my car, so I was able to save more than $100, thanks to Tyler's suggestion.
+
+The next day, the television and speakers were delivered to my home and quickly installed by two polite and professional technicians. I have been very pleased with the quality of the system, which has exceeded my expectations. I'd like to commend your company for making every ________ (143) ............ of the experience smooth, pleasant, and trouble free.
+
+Keep up the good work!
+
+Yours sincerely,
+Trudy Simmons`,
+                questions: [
+                    { id: 'qimg_media_141', num: '141', options: ['find', 'will find', 'found', 'would find'], answer: 'C' },
+                    { id: 'qimg_media_142', num: '142', options: ['they', 'he', 'you', 'we'], answer: 'B' },
+                    { id: 'qimg_media_143', num: '143', options: ['mention', 'style', 'symptom', 'aspect'], answer: 'D' }
+                ]
+            },
+            {
+                passage: "Office Supply Budget",
+                text: `Questions 144-146 refer to the following letter.
+
+Dear Division Managers,
+The Board of Directors has decided to reduce our ________ (144) ............ for office supplies at yesterday’s meeting. It seems that we will have far less money available compared to last year. This is very frustrating, as we ________ (145) ............ more support from the Board of Directors.
+
+I need to compile a list of everyone’s office supply needs. Please submit them by Monday so that I can make a list. Please understand our situation and be sure to be ________ (146) ............ about what you order.`,
+                questions: [
+                    { id: 'qimg_budget_144', num: '144', options: ['budget', 'addition', 'itinerary', 'objectives'], answer: 'A' },
+                    { id: 'qimg_budget_145', num: '145', options: ['were anticipated', 'had anticipated', 'will anticipate', 'are anticipating'], answer: 'B' },
+                    { id: 'qimg_budget_146', num: '146', options: ['selection', 'select', 'selective', 'to select'], answer: 'C' }
+                ]
+            },
+            {
+                passage: "Wayne Thomas",
+                text: `Questions 147-149 refer to the following email.
+
+From: Wayne Thomas [wayne@e-solutions.com]
+To: terry.gilbert@monavale.com
+Cc: Karen Russell [karen.russell@e-solutions.com]
+Sent: Tue, March 07, 2007 14:11PM
+
+Terry,
+I believe you should by now have received the copy of our company profile that we ________ (147) ------- in our last meeting. In it you will find the necessary information you requested. If you still haven’t received it, please feel free to contact me.
+
+Anyway, to keep the ball rolling, our Chairman, Mr. Langley would like to have a meeting with Ms. Russell and/or you in Detroit on any date from March 14th to have a further discussion on the ________ (148) ------- of our cooperation.
+
+Those dates have been chosen since Mr. Langley will be traveling extensively in ________ (149) -------`,
+                questions: [
+                    { id: 'qimg_wayne_147', num: '147', options: ['are discussing', 'had discussed', 'were in discussion', 'will be discussing'], answer: 'B' },
+                    { id: 'qimg_wayne_148', num: '148', options: ['most feasible', 'feasible', 'feasibility', 'more feasible'], answer: 'C' },
+                    { id: 'qimg_wayne_149', num: '149', options: ['either', 'neither', 'each', 'both'], answer: 'D' }
+                ]
+            },
+            {
+                passage: "Please return the overdue item",
+                text: `Questions 150-152 refer to the following notice.
+
+Please return the overdue item!
+We have discovered that the item you checked out three weeks ago is overdue. Return it immediately. As you probably know, patrons may check out items for a period of up to two weeks, and most new released books for one week.
+
+Renewal is possible any time for a longer period ________ (150) .......... other patrons have reserved them.
+If you ________ (151) .......... to renew this item, you may do so by calling us toll-free at 1-800-770-1388.
+To avoid further fees, please renew or return the item within 3 days. ________ (152) ........., we will regrettably need to report it as lost and charge your account for the replacement cost.
+
+You will not be permitted to borrow or renew any items until such charges have been paid in full.`,
+                questions: [
+                    { id: 'qimg_overdue_150', num: '150', options: ['without', 'unless', 'although', 'however'], answer: 'B' },
+                    { id: 'qimg_overdue_151', num: '151', options: ['would like', 'were liked', 'should like', 'will like'], answer: 'A' },
+                    { id: 'qimg_overdue_152', num: '152', options: ['Thus', 'However', 'Besides', 'Otherwise'], answer: 'D' }
+                ]
+            },
+            {
+                passage: "Concert in the Park - a Great Success",
+                text: `Last night over 70,000 people gathered in Trafalgar Park to enjoy the first ever "Concert in the Park." Event organizers were delighted with the surprisingly large ________ (00150) ……… for the inaugural event.
+
+Performers included world-renowned pianist Gregor Ravioski and guitar legend Benny Parkinson, but the loudest cheer ________ (00151) ……… for local singer Sarah Chappell.
+
+According to the organizers, several musicians enjoyed the experience so much that they have promised to come back again next year. Residents living around Trafalgar Park had raise concern prior to the concert about potential problems with crowd control and excessive noise. ________ (00152) ………, city police commissioner Henry Yeats last night congratulated concertgoers on their outstanding behavior and declared the event a "total success."`,
+                questions: [
+                    { id: 'qimg_concert_00150', num: '00150', options: ['turnout', 'venue', 'degree', 'outlay'], answer: 'A' },
+                    { id: 'qimg_concert_00151', num: '00151', options: ['to reserve', 'reserving', 'reserved', 'was reserved'], answer: 'D' },
+                    { id: 'qimg_concert_00152', num: '00152', options: ['Moreover', 'However', 'Furthermore', 'Indeed'], answer: 'B' }
+                ]
+            }
+        ];
+
+        let correctCount = 0;
+        let incorrectCount = 0;
+        const questionState = new Map();
+        function getTotalQuestions() {
+            return questionsData.reduce((sum, p) => sum + (p.questions?.length || 0), 0);
+        }
+
+        // Generate all questions
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            
+            questionsData.forEach((passage, passageIndex) => {
+                // Create passage div
+                const passageDiv = document.createElement('div');
+                passageDiv.className = 'passage';
+                passageDiv.innerHTML = `
+                    <h2>${passage.passage}</h2>
+                    <div class="passage-text">${passage.text}</div>
+                `;
+                container.appendChild(passageDiv);
+                
+                // Create questions for this passage
+                passage.questions.forEach(q => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question-block';
+                    
+                    const optionsHTML = q.options.map((opt, idx) => {
+                        const letter = String.fromCharCode(65 + idx);
+                        return `
+                            <div class="option" onclick="selectAnswer(this, '${q.id}', '${q.answer}')">
+                                <input type="radio" name="${q.id}" value="${letter}" id="${q.id}${letter}">
+                                <label for="${q.id}${letter}">(${letter}) ${opt}</label>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    questionDiv.innerHTML = `
+                        <span class="question-number">Question ${q.num}</span>
+                        <div class="options">
+                            ${optionsHTML}
+                        </div>
+                        <div class="answer-feedback" id="feedback-${q.id}"></div>
+                    `;
+                    
+                    container.appendChild(questionDiv);
+                });
+                
+                // Add divider after each passage except the last
+                if (passageIndex < questionsData.length - 1) {
+                    const divider = document.createElement('div');
+                    divider.className = 'passage-divider';
+                    container.appendChild(divider);
+                }
+            });
+        }
+
+        function recomputeScore() {
+            let c = 0;
+            let i = 0;
+            for (const v of questionState.values()) {
+                if (v === true) c++;
+                else if (v === false) i++;
+            }
+            correctCount = c;
+            incorrectCount = i;
+        }
+
+        function lockQuestion(questionId) {
+            const options = document.querySelectorAll(`.option input[name=\"${questionId}\"]`);
+            options.forEach(inp => {
+                const opt = inp.closest('.option');
+                if (opt) {
+                    opt.style.pointerEvents = 'none';
+                    opt.style.opacity = '0.7';
+                }
+            });
+        }
+
+        function selectAnswer(optionElement, questionId, correctAnswer) {
+            if (questionState.get(questionId) === true) {
+                return;
+            }
+
+            const selectedValue = optionElement.querySelector('input').value;
+            const feedbackDiv = document.getElementById(`feedback-${questionId}`);
+            const allOptions = optionElement.parentElement.querySelectorAll('.option');
+
+            allOptions.forEach(opt => opt.classList.remove('selected-correct', 'selected-incorrect'));
+
+            const isCorrect = selectedValue === correctAnswer;
+            questionState.set(questionId, isCorrect);
+            recomputeScore();
+
+            if (isCorrect) {
+                optionElement.classList.add('selected-correct');
+                feedbackDiv.className = 'answer-feedback correct show';
+                feedbackDiv.innerHTML = `✅ Correct! The answer is (${correctAnswer})`;
+                lockQuestion(questionId);
+            } else {
+                optionElement.classList.add('selected-incorrect');
+                feedbackDiv.className = 'answer-feedback incorrect show';
+                feedbackDiv.innerHTML = `❌ Incorrect. Try again. Correct answer is (${correctAnswer})`;
+
+                // Keep options clickable for retry
+                allOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'auto';
+                    opt.style.opacity = '1';
+                });
+            }
+
+            optionElement.style.opacity = '1';
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById('correctScore').textContent = correctCount;
+            document.getElementById('incorrectScore').textContent = incorrectCount;
+            document.getElementById('totalScore').textContent = `${correctCount + incorrectCount}/${getTotalQuestions()}`;
+        }
+
+        function resetQuiz() {
+            if (!confirm('Are you sure you want to reset the quiz? All progress will be lost.')) {
+                return;
+            }
+
+            correctCount = 0;
+            incorrectCount = 0;
+            questionState.clear();
+            updateScore();
+
+            document.querySelectorAll('.question-block').forEach(block => {
+                block.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.checked = false;
+                });
+
+                block.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected-correct', 'selected-incorrect');
+                    option.style.pointerEvents = 'auto';
+                    option.style.opacity = '1';
+                });
+
+                block.querySelectorAll('.answer-feedback').forEach(feedback => {
+                    feedback.classList.remove('show');
+                });
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            generateQuestions();
+        });
+    </script>
+</body>
+</html>
