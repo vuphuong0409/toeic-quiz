@@ -1,0 +1,1338 @@
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jimi Test 03 (Part 1,2, 3,4)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .question-container {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .translation {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- <h1>Jimi Test 03 (Part 1,2, 3,4)</h1> -->
+    <!-- <audio controls style="margin-bottom:20px;"> -->
+        <!-- <source src="audio/ActualTest03.mp3" type="audio/mpeg"> -->
+        <!-- Your browser does not support the audio element. -->
+    <!-- </audio> -->
+    <!-- <div id="quiz-container"></div> -->
+<h1>Jimi Test 03 (Part 1,2, 3,4)</h1>
+
+<select onchange="document.getElementById('player').src=this.value">
+    <option value="audio/JIM_TEST_03_Part1.mp3">Part 1</option>
+    <option value="audio/JIM_TEST_03_Part2.mp3">Part 2</option>
+    <option value="audio/JIM_TEST_03_Part3.mp3">Part 3</option>
+    <option value="audio/JIM_TEST_03_Part4.mp3">Part 4</option>
+</select>
+
+<br><br>
+
+<audio id="player" controls>
+    <source src="audio/JIM_TEST_03_Part1.mp3" type="audio/mpeg">
+</audio>
+
+<div id="quiz-container"></div>
+
+    <script>
+        const questions = [
+  {
+    "id": 1,
+    "question": "What do you see in the picture?",
+    "image": "images/1.png",
+    "translation": "",
+    "options": [
+      {"text": "They're standing on a pier.", "value": "A"},
+      {"text": "They're about to step into the boat.", "value": "B"},
+      {"text": "They're fishing on the dock.", "value": "C"},
+      {"text": "They're ready to set sail.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 2,
+    "question": "What do you see in the picture?",
+    "image": "images/2.png",
+    "translation": "",
+    "options": [
+      {"text": "They're clapping their hands.", "value": "A"},
+      {"text": "They're facing one another.", "value": "B"},
+      {"text": "They're waving their hands.", "value": "C"},
+      {"text": "They're pacing around the place.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 3,
+    "question": "What do you see in the picture?",
+    "image": "images/3.png",
+    "translation": "",
+    "options": [
+      {"text": "A piece of furniture is being repaired.", "value": "A"},
+      {"text": "A machine is being worked on.", "value": "B"},
+      {"text": "A toolbox is being opened.", "value": "C"},
+      {"text": "A desk drawer is being closed.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 4,
+    "question": "What do you see in the picture?",
+    "image": "images/4.png",
+    "translation": "",
+    "options": [
+      {"text": "The people are entering a music hall.", "value": "A"},
+      {"text": "The musicians are playing a musical piece.", "value": "B"},
+      {"text": "The orchestra is performing on stage.", "value": "C"},
+      {"text": "The audience is watching a performance.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 5,
+    "question": "What do you see in the picture?",
+    "image": "images/5.png",
+    "translation": "",
+    "options": [
+      {"text": "She has finished talking on the phone.", "value": "A"},
+      {"text": "A notice is being posted on the door.", "value": "B"},
+      {"text": "She has the receiver held up to her ear.", "value": "C"},
+      {"text": "A coin is being placed into the slot.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 6,
+    "question": "What do you see in the picture?",
+    "image": "images/6.png",
+    "translation": "",
+    "options": [
+      {"text": "Tourists are approaching the fountain.", "value": "A"},
+      {"text": "The fountain is being admired.", "value": "B"},
+      {"text": "Water is being poured into a bucket.", "value": "C"},
+      {"text": "A pathway extends away from the fountain.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 7,
+    "question": "What do you see in the picture?",
+    "image": "images/7.png",
+    "translation": "",
+    "options": [
+      {"text": "Some people are sunbathing near the lake.", "value": "A"},
+      {"text": "Some people are ready to go for a swim.", "value": "B"},
+      {"text": "Some people are strolling near the water.", "value": "C"},
+      {"text": "Some people have put their feet in the water.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 8,
+    "question": "What do you see in the picture?",
+    "image": "images/8.png",
+    "translation": "",
+    "options": [
+      {"text": "He's serving food to the others.", "value": "A"},
+      {"text": "He's holding a plastic cup in his hand.", "value": "B"},
+      {"text": "He's arranging the plates on the table.", "value": "C"},
+      {"text": "He's helping himself to some food.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 9,
+    "question": "What do you see in the picture?",
+    "image": "images/9.png",
+    "translation": "",
+    "options": [
+      {"text": "The house is undergoing renovations.", "value": "A"},
+      {"text": "The bushes are being trimmed.", "value": "B"},
+      {"text": "Some furniture has been set out in the yard.", "value": "C"},
+      {"text": "People are relaxing in the backyard.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 10,
+    "question": "What do you see in the picture?",
+    "image": "images/10.png",
+    "translation": "",
+    "options": [
+      {"text": "The boxes are being loaded onto the belt.", "value": "A"},
+      {"text": "The equipment is being turned on.", "value": "B"},
+      {"text": "Some workers are sorting through the boxes.", "value": "C"},
+      {"text": "Some boxes have been placed on the conveyer belt.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 11,
+    "question": "Who will draft the letter?",
+    "translation": "",
+    "options": [
+      {"text": "He will come by later.", "value": "A"},
+      {"text": "Yes, he left it there.", "value": "B"},
+      {"text": "Jane is working on it now.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 12,
+    "question": "When are they going to release the report?",
+    "translation": "",
+    "options": [
+      {"text": "By fax.", "value": "A"},
+      {"text": "At 2:00.", "value": "B"},
+      {"text": "In room 15.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 13,
+    "question": "Do you know where I can catch a bus to downtown?",
+    "translation": "",
+    "options": [
+      {"text": "He just left a minute ago.", "value": "A"},
+      {"text": "Sure, I will catch you later.", "value": "B"},
+      {"text": "Try the stop over there.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 14,
+    "question": "Were you able to pick up the books you need?",
+    "translation": "",
+    "options": [
+      {"text": "I booked it this morning.", "value": "A"},
+      {"text": "No, they were all sold out.", "value": "B"},
+      {"text": "Can you pick me up at 5?", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 15,
+    "question": "How long will you be on the road today?",
+    "translation": "",
+    "options": [
+      {"text": "I'll be back around 3.", "value": "A"},
+      {"text": "Roughly an hour ago.", "value": "B"},
+      {"text": "Yes, I will be driving there.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 16,
+    "question": "Did you get in touch with him or should I try calling?",
+    "translation": "",
+    "options": [
+      {"text": "I just got off the phone with him.", "value": "A"},
+      {"text": "He is sitting on the couch.", "value": "B"},
+      {"text": "I'll get it for you later.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 17,
+    "question": "Don't you have to go to your appointment with your lawyer soon?",
+    "translation": "",
+    "options": [
+      {"text": "To discuss some legal matters.", "value": "A"},
+      {"text": "Yes. Right after I'm done with this.", "value": "B"},
+      {"text": "No, he made a point not to do that.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 18,
+    "question": "Who is planning to take you to the software exhibition?",
+    "translation": "",
+    "options": [
+      {"text": "He will take his car.", "value": "A"},
+      {"text": "Jack said he will.", "value": "B"},
+      {"text": "To get some information.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 19,
+    "question": "Why is Suki leaving the company?",
+    "translation": "",
+    "options": [
+      {"text": "She decided to go back to school.", "value": "A"},
+      {"text": "Sure, just leave it right here.", "value": "B"},
+      {"text": "Yes, she doesn't get along with her boss.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 20,
+    "question": "David Wells did a good job delivering his speech today, didn't he?",
+    "translation": "",
+    "options": [
+      {"text": "He took it to a wrong address.", "value": "A"},
+      {"text": "No, the job is quite interesting.", "value": "B"},
+      {"text": "Yes, he did a great job.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 21,
+    "question": "Don't you feel a bit chilly with the air conditioner on?",
+    "translation": "",
+    "options": [
+      {"text": "Yes, it's freezing in here.", "value": "A"},
+      {"text": "No, I don't feel too well.", "value": "B"},
+      {"text": "He is a bit silly.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 22,
+    "question": "Where do you suppose I could pick up the items on the list?",
+    "translation": "",
+    "options": [
+      {"text": "Try looking in the store over there.", "value": "A"},
+      {"text": "It's too heavy to pick it up alone.", "value": "B"},
+      {"text": "Yes, I think you can do it.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 23,
+    "question": "Are you planning to attend the meeting this afternoon?",
+    "translation": "",
+    "options": [
+      {"text": "Yes, I need to do it now.", "value": "A"},
+      {"text": "Is Tuesday okay with you?", "value": "B"},
+      {"text": "Yes, but only for a while.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 24,
+    "question": "Mr. Suzuki is waiting for the delivery, isn't he?",
+    "translation": "",
+    "options": [
+      {"text": "He will be here shortly.", "value": "A"},
+      {"text": "No, I don't know him well.", "value": "B"},
+      {"text": "Yes, he's downstairs at the lobby now.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 25,
+    "question": "Would you be interested in joining our entertainment committee?",
+    "translation": "",
+    "options": [
+      {"text": "He is a very interesting person.", "value": "A"},
+      {"text": "Yes, but I don't have time these days.", "value": "B"},
+      {"text": "When I was at the movies.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 26,
+    "question": "Isn't there an additional charge to send it by express mail?",
+    "translation": "",
+    "options": [
+      {"text": "No, everything is included in the cost.", "value": "A"},
+      {"text": "I will charge it on my credit card.", "value": "B"},
+      {"text": "Yes, there will be a couple more people.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 27,
+    "question": "Should I sign my name on the first page or all the pages?",
+    "translation": "",
+    "options": [
+      {"text": "I already told you his name.", "value": "A"},
+      {"text": "Just sign the last one.", "value": "B"},
+      {"text": "The sign is rather noticeable.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 28,
+    "question": "Did the contractor give you the completion date?",
+    "translation": "",
+    "options": [
+      {"text": "I will finish it by then.", "value": "A"},
+      {"text": "He said sometime in May.", "value": "B"},
+      {"text": "He will make the suggestion.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 29,
+    "question": "Don't you think this design could be improved more?",
+    "translation": "",
+    "options": [
+      {"text": "To the designated area.", "value": "A"},
+      {"text": "Why? Don't you think it looks nice?", "value": "B"},
+      {"text": "Yes, we decided to proofread it again.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 30,
+    "question": "Would you rather meet over lunch or after 2 today?",
+    "translation": "",
+    "options": [
+      {"text": "That sounds fine by me.", "value": "A"},
+      {"text": "I have to meet a client at noon.", "value": "B"},
+      {"text": "How is the Italian place?", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 31,
+    "question": "Can you give me a hand moving the couch, please?",
+    "translation": "",
+    "options": [
+      {"text": "To the second floor.", "value": "A"},
+      {"text": "That is a great rate offer.", "value": "B"},
+      {"text": "Sure. Give me a second first.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 32,
+    "question": "Why don't you see if you can get a transfer to a branch office closer to your place?",
+    "translation": "",
+    "options": [
+      {"text": "I live about 20 minutes from here.", "value": "A"},
+      {"text": "Yes, I was planning on doing that.", "value": "B"},
+      {"text": "Two of my friends live there.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 33,
+    "question": "Has anyone heard where the director went this morning?",
+    "translation": "",
+    "options": [
+      {"text": "Mr. Sers is coming this morning.", "value": "A"},
+      {"text": "I've been hearing it a lot lately, too.", "value": "B"},
+      {"text": "No, but Judy should know where he is.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 34,
+    "question": "What is your opinion regarding the Johnson project?",
+    "translation": "",
+    "options": [
+      {"text": "It is going to be very profitable.", "value": "A"},
+      {"text": "Yes, John will be here today.", "value": "B"},
+      {"text": "Sure, I will put you in charge of it.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 35,
+    "question": "Shall we get together in here or is this room already reserved?",
+    "translation": "",
+    "options": [
+      {"text": "There should still be some room.", "value": "A"},
+      {"text": "I'll call the restaurant later.", "value": "B"},
+      {"text": "It's available as far as I know.", "value": "C"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 36,
+    "question": "I didn't know you were a member here.",
+    "translation": "",
+    "options": [
+      {"text": "I joined last week.", "value": "A"},
+      {"text": "I do remember you.", "value": "B"},
+      {"text": "Thanks. That was be nice.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 37,
+    "question": "Sarah joined us last week, didn't she?",
+    "translation": "",
+    "options": [
+      {"text": "No, the week before.", "value": "A"},
+      {"text": "I'll go there tomorrow.", "value": "B"},
+      {"text": "Yes, I saw her last week.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 38,
+    "question": "How is your new place?",
+    "translation": "",
+    "options": [
+      {"text": "It is brand new.", "value": "A"},
+      {"text": "It's very cozy.", "value": "B"},
+      {"text": "It's a one-story house.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 39,
+    "question": "Where do you want to look over this paper together?",
+    "translation": "",
+    "options": [
+      {"text": "You look fantastic.", "value": "A"},
+      {"text": "How about right here?", "value": "B"},
+      {"text": "It's on the table.", "value": "C"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 40,
+    "question": "Something is the matter with my new laptop.",
+    "translation": "",
+    "options": [
+      {"text": "Do you want me to look at it?", "value": "A"},
+      {"text": "That's a better idea.", "value": "B"},
+      {"text": "On top of the conference table.", "value": "C"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 41,
+    "question": "Who is the woman speaking to?",
+    "translation": "",
+    "options": [
+      {"text": "A mailman.", "value": "A"},
+      {"text": "A job applicant.", "value": "B"},
+      {"text": "A potential employer.", "value": "C"},
+      {"text": "A phone operator.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 42,
+    "question": "What is the purpose of the call?",
+    "translation": "",
+    "options": [
+      {"text": "To inquire about an open position.", "value": "A"},
+      {"text": "To check to see if something he sent has arrived safely.", "value": "B"},
+      {"text": "To seek information about a company product.", "value": "C"},
+      {"text": "To further discuss a job offer.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 43,
+    "question": "What does the woman ask the man to do?",
+    "translation": "",
+    "options": [
+      {"text": "Call back again later.", "value": "A"},
+      {"text": "Come to the office in person.", "value": "B"},
+      {"text": "Try another phone number.", "value": "C"},
+      {"text": "Mail his résumé to her office.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 44,
+    "question": "How did the man learn of this place?",
+    "translation": "",
+    "options": [
+      {"text": "He saw an ad in the paper.", "value": "A"},
+      {"text": "He was told about it by a close friend.", "value": "B"},
+      {"text": "He was referred there by someone.", "value": "C"},
+      {"text": "He found it by luck.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 45,
+    "question": "What does the woman mention is special about this place?",
+    "translation": "",
+    "options": [
+      {"text": "They carry clothes for heavy people.", "value": "A"},
+      {"text": "They are very conveniently located.", "value": "B"},
+      {"text": "They sell the cheapest clothing in town.", "value": "C"},
+      {"text": "They are very well known in the area.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 46,
+    "question": "What will the man do next?",
+    "translation": "",
+    "options": [
+      {"text": "Pay for his purchase.", "value": "A"},
+      {"text": "Go to another store.", "value": "B"},
+      {"text": "Walk up to the next floor.", "value": "C"},
+      {"text": "Try on some clothes.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 47,
+    "question": "When was the report submitted?",
+    "translation": "",
+    "options": [
+      {"text": "Today.", "value": "A"},
+      {"text": "Yesterday.", "value": "B"},
+      {"text": "Last week.", "value": "C"},
+      {"text": "Two weeks ago.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 48,
+    "question": "Why does the man want to meet with the woman?",
+    "translation": "",
+    "options": [
+      {"text": "To ask her to clarify something he does not understand.", "value": "A"},
+      {"text": "To ask for her help in preparing for the presentation.", "value": "B"},
+      {"text": "To discuss a personal problem with her.", "value": "C"},
+      {"text": "To ask her to talk to his client.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 49,
+    "question": "When will the speakers most likely meet?",
+    "translation": "",
+    "options": [
+      {"text": "This afternoon.", "value": "A"},
+      {"text": "This evening.", "value": "B"},
+      {"text": "Tomorrow morning.", "value": "C"},
+      {"text": "Tomorrow afternoon.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 50,
+    "question": "According to the woman, what will most likely cause the traffic to be congested?",
+    "translation": "",
+    "options": [
+      {"text": "Rush hour.", "value": "A"},
+      {"text": "Bad weather.", "value": "B"},
+      {"text": "Accidents.", "value": "C"},
+      {"text": "Road construction.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 51,
+    "question": "What will the man do first?",
+    "translation": "",
+    "options": [
+      {"text": "Walk down to the lobby.", "value": "A"},
+      {"text": "Drop by Mr. Kim's office.", "value": "B"},
+      {"text": "Put on his coat.", "value": "C"},
+      {"text": "Buy a train ticket.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 52,
+    "question": "How will they get to Mr. Rowe's office?",
+    "translation": "",
+    "options": [
+      {"text": "They will drive there.", "value": "A"},
+      {"text": "They will use public transportation.", "value": "B"},
+      {"text": "They will get a lift from the woman.", "value": "C"},
+      {"text": "They will walk there.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 53,
+    "question": "Where is the conversation taking place?",
+    "translation": "",
+    "options": [
+      {"text": "In a copy store.", "value": "A"},
+      {"text": "In a restaurant.", "value": "B"},
+      {"text": "At an airport.", "value": "C"},
+      {"text": "At a post office.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 54,
+    "question": "What does the woman ask for?",
+    "translation": "",
+    "options": [
+      {"text": "Extra copies.", "value": "A"},
+      {"text": "Some dessert.", "value": "B"},
+      {"text": "The receipt.", "value": "C"},
+      {"text": "A few stamps.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 55,
+    "question": "What can be inferred about the place?",
+    "translation": "",
+    "options": [
+      {"text": "It can hold many people at one time.", "value": "A"},
+      {"text": "It has many regular customers.", "value": "B"},
+      {"text": "It closes early during weekdays.", "value": "C"},
+      {"text": "It is conveniently located in the center of town.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 56,
+    "question": "When will the speakers arrive at the airport?",
+    "translation": "",
+    "options": [
+      {"text": "12:00.", "value": "A"},
+      {"text": "1:00.", "value": "B"},
+      {"text": "3:00.", "value": "C"},
+      {"text": "4:00.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 57,
+    "question": "Why is the man tired?",
+    "translation": "",
+    "options": [
+      {"text": "He has been traveling a lot lately.", "value": "A"},
+      {"text": "He worked until late yesterday.", "value": "B"},
+      {"text": "He still has jetlag.", "value": "C"},
+      {"text": "He gave a long presentation.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 58,
+    "question": "What does the woman suggest the man do?",
+    "translation": "",
+    "options": [
+      {"text": "Speak more clearly.", "value": "A"},
+      {"text": "Lie back on his chair.", "value": "B"},
+      {"text": "Wake up a bit early in the morning.", "value": "C"},
+      {"text": "Prepare more for the presentation.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 59,
+    "question": "What does the man want to do?",
+    "translation": "",
+    "options": [
+      {"text": "Get his money back.", "value": "A"},
+      {"text": "Take another product.", "value": "B"},
+      {"text": "Buy a cellular phone.", "value": "C"},
+      {"text": "Try some cakes.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 60,
+    "question": "What is NOT mentioned about the X-100 model?",
+    "translation": "",
+    "options": [
+      {"text": "Its applications.", "value": "A"},
+      {"text": "Its price.", "value": "B"},
+      {"text": "Its quality.", "value": "C"},
+      {"text": "Its popularity.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 61,
+    "question": "Who is the man speaking with?",
+    "translation": "",
+    "options": [
+      {"text": "A co-worker.", "value": "A"},
+      {"text": "A bank teller.", "value": "B"},
+      {"text": "A baker.", "value": "C"},
+      {"text": "A salesperson.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 62,
+    "question": "How did the man find this place?",
+    "translation": "",
+    "options": [
+      {"text": "He read about it in a newspaper ad.", "value": "A"},
+      {"text": "He heard about it through a person he knows.", "value": "B"},
+      {"text": "It was referred to him by a real estate agent.", "value": "C"},
+      {"text": "He saw an ad posted on the window.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 63,
+    "question": "According to the woman, what is special about this place?",
+    "translation": "",
+    "options": [
+      {"text": "It is conveniently located.", "value": "A"},
+      {"text": "It has many rooms.", "value": "B"},
+      {"text": "It is very affordable.", "value": "C"},
+      {"text": "It opens with a special key.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 64,
+    "question": "What will the woman do first?",
+    "translation": "",
+    "options": [
+      {"text": "Remove the for-rent sign.", "value": "A"},
+      {"text": "Walk up to the fifth floor.", "value": "B"},
+      {"text": "Bring out a lease agreement.", "value": "C"},
+      {"text": "Retrieve the key.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 65,
+    "question": "Why is the woman being complimented?",
+    "translation": "",
+    "options": [
+      {"text": "She was promoted to the director's position.", "value": "A"},
+      {"text": "She convinced Mr. Shaw to sign a contract.", "value": "B"},
+      {"text": "Her proposal was accepted by the directors.", "value": "C"},
+      {"text": "Her co-workers have positive feelings for her.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 66,
+    "question": "What does the man say?",
+    "translation": "",
+    "options": [
+      {"text": "She gave a great talk.", "value": "A"},
+      {"text": "She should work a bit harder.", "value": "B"},
+      {"text": "She will have to give a speech.", "value": "C"},
+      {"text": "She won't get the contract.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 67,
+    "question": "Who does the woman say is responsible for the outcome?",
+    "translation": "",
+    "options": [
+      {"text": "The keynote speaker.", "value": "A"},
+      {"text": "Her team members.", "value": "B"},
+      {"text": "The directors.", "value": "C"},
+      {"text": "The man.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 68,
+    "question": "Where was the man born?",
+    "translation": "",
+    "options": [
+      {"text": "Toronto.", "value": "A"},
+      {"text": "Detroit.", "value": "B"},
+      {"text": "Buffalo.", "value": "C"},
+      {"text": "Los Angeles.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 69,
+    "question": "When did the man move to the city he is living now?",
+    "translation": "",
+    "options": [
+      {"text": "When he was a child.", "value": "A"},
+      {"text": "Three years ago.", "value": "B"},
+      {"text": "During his high school days.", "value": "C"},
+      {"text": "He was born here.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 70,
+    "question": "Who is the man's roommate?",
+    "translation": "",
+    "options": [
+      {"text": "Dave.", "value": "A"},
+      {"text": "Steve.", "value": "B"},
+      {"text": "Larry.", "value": "C"},
+      {"text": "Jane.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 71,
+    "question": "What is the purpose of the announcement?",
+    "translation": "",
+    "options": [
+      {"text": "To inform people of a policy change.", "value": "A"},
+      {"text": "To publicize a new product.", "value": "B"},
+      {"text": "To introduce the new sales manager.", "value": "C"},
+      {"text": "To show appreciation for good work.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 72,
+    "question": "What has happened in the past six months?",
+    "translation": "",
+    "options": [
+      {"text": "There was a change in management.", "value": "A"},
+      {"text": "Sales have steadily increased.", "value": "B"},
+      {"text": "The company bought out a hotel.", "value": "C"},
+      {"text": "The performance of the workers were evaluated.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 73,
+    "question": "What is going to happen this weekend?",
+    "translation": "",
+    "options": [
+      {"text": "A new company sales goal will be set.", "value": "A"},
+      {"text": "The staff members will go on a trip.", "value": "B"},
+      {"text": "There will be a luncheon party.", "value": "C"},
+      {"text": "A family get-together will take place.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 74,
+    "question": "What is Ms. Bartlett's current position?",
+    "translation": "",
+    "options": [
+      {"text": "Chief Executive Officer.", "value": "A"},
+      {"text": "Consultant.", "value": "B"},
+      {"text": "News reporter.", "value": "C"},
+      {"text": "Food critic.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 75,
+    "question": "When will Susan leave her job?",
+    "translation": "",
+    "options": [
+      {"text": "At the end of this week.", "value": "A"},
+      {"text": "Sometime next month.", "value": "B"},
+      {"text": "Later this year.", "value": "C"},
+      {"text": "Early next year.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 76,
+    "question": "What has the company started doing?",
+    "translation": "",
+    "options": [
+      {"text": "Importing food from Asia.", "value": "A"},
+      {"text": "Seeking a new leader.", "value": "B"},
+      {"text": "Hiring more consultants.", "value": "C"},
+      {"text": "Reporting business news.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 77,
+    "question": "Who most likely is listening to this talk?",
+    "translation": "",
+    "options": [
+      {"text": "Journalists.", "value": "A"},
+      {"text": "Golfers.", "value": "B"},
+      {"text": "Security guards.", "value": "C"},
+      {"text": "Referees.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 78,
+    "question": "How long is the event supposed to last?",
+    "translation": "",
+    "options": [
+      {"text": "One day.", "value": "A"},
+      {"text": "Two days.", "value": "B"},
+      {"text": "Seven days.", "value": "C"},
+      {"text": "Twenty days.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 79,
+    "question": "What does the speaker ask the listeners to do?",
+    "translation": "",
+    "options": [
+      {"text": "Prepare for the competition.", "value": "A"},
+      {"text": "Turn off their cell phones.", "value": "B"},
+      {"text": "Take turns asking questions.", "value": "C"},
+      {"text": "Talk to the security guard.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 80,
+    "question": "Who is the intended audience for this talk?",
+    "translation": "",
+    "options": [
+      {"text": "Grocery store clerks.", "value": "A"},
+      {"text": "Health club instructors.", "value": "B"},
+      {"text": "Restaurant employees.", "value": "C"},
+      {"text": "Company workers.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 81,
+    "question": "Which of the following was NOT mentioned by the speaker when mentioning the menu?",
+    "translation": "",
+    "options": [
+      {"text": "Appetizers.", "value": "A"},
+      {"text": "Desserts.", "value": "B"},
+      {"text": "Beverages.", "value": "C"},
+      {"text": "Entrées.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 82,
+    "question": "According to the speaker, where will the listeners be able to see the information?",
+    "translation": "",
+    "options": [
+      {"text": "Next to the snack stand.", "value": "A"},
+      {"text": "In the lunchroom.", "value": "B"},
+      {"text": "On the Internet.", "value": "C"},
+      {"text": "In the staff room.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 83,
+    "question": "What is the talk mainly about?",
+    "translation": "",
+    "options": [
+      {"text": "How to get a bargain during Christmas.", "value": "A"},
+      {"text": "How to overcome stress at a workplace.", "value": "B"},
+      {"text": "How to become closer to family members.", "value": "C"},
+      {"text": "How to drive safely during the holiday season.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 84,
+    "question": "Which of the following is NOT a tip mentioned by the speaker?",
+    "translation": "",
+    "options": [
+      {"text": "Don't drive alone.", "value": "A"},
+      {"text": "Pull over when tired.", "value": "B"},
+      {"text": "Drink a lot of coffee.", "value": "C"},
+      {"text": "Do not drive too late.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 85,
+    "question": "How often is the show aired?",
+    "translation": "",
+    "options": [
+      {"text": "Every day.", "value": "A"},
+      {"text": "Once a week.", "value": "B"},
+      {"text": "Twice a week.", "value": "C"},
+      {"text": "Only on weekdays.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 86,
+    "question": "What is the purpose of the talk?",
+    "translation": "",
+    "options": [
+      {"text": "To alert customers about a new dish.", "value": "A"},
+      {"text": "To notify the staff about the new location of the restaurant.", "value": "B"},
+      {"text": "To gather suggestions about a new menu for the place.", "value": "C"},
+      {"text": "To announce a new chef for the restaurant.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 87,
+    "question": "What is going to happen at the end of the month?",
+    "translation": "",
+    "options": [
+      {"text": "They will move out to a new place.", "value": "A"},
+      {"text": "The chef will renegotiate his contract.", "value": "B"},
+      {"text": "A French restaurant will open next door.", "value": "C"},
+      {"text": "The theater will hold its first Broadway play.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 88,
+    "question": "What is mentioned about the place?",
+    "translation": "",
+    "options": [
+      {"text": "It has recently opened.", "value": "A"},
+      {"text": "It has a long history.", "value": "B"},
+      {"text": "It has the best food in town.", "value": "C"},
+      {"text": "It is very busy.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 89,
+    "question": "Who is the speaker most likely addressing?",
+    "translation": "",
+    "options": [
+      {"text": "A group of new employees.", "value": "A"},
+      {"text": "A bunch of managers.", "value": "B"},
+      {"text": "Some volunteer guides.", "value": "C"},
+      {"text": "Cafeteria workers.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 90,
+    "question": "Who most likely is Mr. O'Brien?",
+    "translation": "",
+    "options": [
+      {"text": "The personnel manager.", "value": "A"},
+      {"text": "The keynote speaker.", "value": "B"},
+      {"text": "The company policy maker.", "value": "C"},
+      {"text": "The production manager.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 91,
+    "question": "When will the listeners tour the factory floor?",
+    "translation": "",
+    "options": [
+      {"text": "At 11:00.", "value": "A"},
+      {"text": "At 12:30.", "value": "B"},
+      {"text": "At 1:30.", "value": "C"},
+      {"text": "At 3:00.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 92,
+    "question": "According to the speaker, what is the goal of the survey?",
+    "translation": "",
+    "options": [
+      {"text": "To see if they can collect more money.", "value": "A"},
+      {"text": "To find collections of old art.", "value": "B"},
+      {"text": "To look into the cause of the damages.", "value": "C"},
+      {"text": "To find ways to fix the damages.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 93,
+    "question": "What does the result of the survey report?",
+    "translation": "",
+    "options": [
+      {"text": "The place is beyond repairs.", "value": "A"},
+      {"text": "The building is need of repairs.", "value": "B"},
+      {"text": "The structure is in good condition.", "value": "C"},
+      {"text": "The gallery is due for paint job.", "value": "D"}
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 94,
+    "question": "What does the consultant advise?",
+    "translation": "",
+    "options": [
+      {"text": "To move to another more suitable place.", "value": "A"},
+      {"text": "To buy more art at the auction.", "value": "B"},
+      {"text": "To recruit more volunteers to help out.", "value": "C"},
+      {"text": "To respond right away to reduce future costs.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 95,
+    "question": "What is the talk mainly about?",
+    "translation": "",
+    "options": [
+      {"text": "The tour sites of the city.", "value": "A"},
+      {"text": "The local businessmen.", "value": "B"},
+      {"text": "The makeup of the city.", "value": "C"},
+      {"text": "The famous shopping centers.", "value": "D"}
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 96,
+    "question": "Which of the following is NOT mentioned about the underground structure?",
+    "translation": "",
+    "options": [
+      {"text": "It consists of many different types of shops.", "value": "A"},
+      {"text": "It is connected to places throughout the city.", "value": "B"},
+      {"text": "It protects people from bad weather.", "value": "C"},
+      {"text": "It is fully air-conditioned.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 97,
+    "question": "What is mentioned about the weather in Toronto?",
+    "translation": "",
+    "options": [
+      {"text": "It goes up and down.", "value": "A"},
+      {"text": "It is quite cold.", "value": "B"},
+      {"text": "It is stable.", "value": "C"},
+      {"text": "It is very windy.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 98,
+    "question": "According to the speaker, who would most benefit from multitasking?",
+    "translation": "",
+    "options": [
+      {"text": "Those who are too busy to exercise.", "value": "A"},
+      {"text": "People who are health conscious.", "value": "B"},
+      {"text": "Cyclists who are seeking challenges.", "value": "C"},
+      {"text": "People who live close to their workplace.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 99,
+    "question": "Which of the following is NOT a benefit mentioned by the speaker in the example given?",
+    "translation": "",
+    "options": [
+      {"text": "One can get a good workout.", "value": "A"},
+      {"text": "One can learn to relax.", "value": "B"},
+      {"text": "One can save some money.", "value": "C"},
+      {"text": "One can finish work faster.", "value": "D"}
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 100,
+    "question": "What will those who participate in the event receive at no cost?",
+    "translation": "",
+    "options": [
+      {"text": "A meal.", "value": "A"},
+      {"text": "A bicycle.", "value": "B"},
+      {"text": "A health club membership.", "value": "C"},
+      {"text": "A relaxation massage.", "value": "D"}
+    ],
+    "correctAnswer": "A"
+  }
+];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        questions.forEach(q => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            const imageHtml = q.image ? `<img src="${q.image}" width="400">` : "";
+            questionDiv.innerHTML = `
+                <div class="question">Question ${q.id}. ${q.question}</div>
+                ${imageHtml}
+                <div class="translation">${q.translation}</div>
+                <div class="options">
+                    ${q.options.map(opt => `
+                        <label>
+                            <input type="radio" name="q${q.id}" value="${opt.value}">
+                            ${opt.value}. ${opt.text}
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback${q.id}"></div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const radios = questionDiv.querySelectorAll(`input[name="q${q.id}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const feedback = document.getElementById(`feedback${q.id}`);
+                    if (radio.value === q.correctAnswer) {
+                        feedback.textContent = 'Correct!';
+                        feedback.classList.remove('incorrect');
+                        feedback.classList.add('correct');
+                    } else {
+                        const correctOption = q.options.find(opt => opt.value === q.correctAnswer);
+                        feedback.textContent = `Incorrect. The correct answer is ${correctOption.value}. ${correctOption.text}.`;
+                        feedback.classList.remove('correct');
+                        feedback.classList.add('incorrect');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

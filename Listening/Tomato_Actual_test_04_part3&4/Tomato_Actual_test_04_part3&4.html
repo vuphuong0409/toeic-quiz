@@ -1,0 +1,865 @@
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomato Actual test 04 (Part 3,4)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .question-container {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .translation {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tomato Actual test 04 (Part 3,4)</h1>
+    <audio controls style="margin-bottom:20px;">
+        <source src="audio/ActualTest04.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div id="quiz-container"></div>
+
+    <script>
+        const questions = [
+{
+"id":41,
+"question":"What does the woman need?",
+"image":null,
+"options":[
+{"value":"A","text":"Reservations for a trip"},
+{"value":"B","text":"Assistance with a project"},
+{"value":"C","text":"The schedule of a workshop"},
+{"value":"D","text":"Funding for a campaign"}
+],
+"correctAnswer":"B"
+},
+{
+"id":42,
+"question":"What is taking place in Ottawa?",
+"image":null,
+"options":[
+{"value":"A","text":"A company celebration"},
+{"value":"B","text":"A customer feedback seminar"},
+{"value":"C","text":"An industry job fair"},
+{"value":"D","text":"A technical workshop"}
+],
+"correctAnswer":"D"
+},
+{
+"id":43,
+"question":"Who does the man suggest that the woman ask for help?",
+"image":null,
+"options":[
+{"value":"A","text":"Alfred"},
+{"value":"B","text":"Tom"},
+{"value":"C","text":"Isabel"},
+{"value":"D","text":"Susan"}
+],
+"correctAnswer":"B"
+},
+{
+"id":44,
+"question":"Why is the man speaking with the woman?",
+"image":null,
+"options":[
+{"value":"A","text":"To warn her about a problem"},
+{"value":"B","text":"To ask about road safety"},
+{"value":"C","text":"To find out about local attractions"},
+{"value":"D","text":"To get directions to his destination"}
+],
+"correctAnswer":"D"
+},
+{
+"id":45,
+"question":"Where is the tax office located?",
+"image":null,
+"options":[
+{"value":"A","text":"Adjacent to the city park"},
+{"value":"B","text":"Across from the public library"},
+{"value":"C","text":"Next to the grocery store"},
+{"value":"D","text":"At the end of the road"}
+],
+"correctAnswer":"A"
+},
+{
+"id":46,
+"question":"What should the man do first?",
+"image":null,
+"options":[
+{"value":"A","text":"Take the street to the left"},
+{"value":"B","text":"Ask for help in a store"},
+{"value":"C","text":"Visit the tax office"},
+{"value":"D","text":"Continue straight ahead"}
+],
+"correctAnswer":"D"
+},
+{
+"id":47,
+"question":"Why is the man calling?",
+"image":null,
+"options":[
+{"value":"A","text":"To promote his company"},
+{"value":"B","text":"To purchase some supplies"},
+{"value":"C","text":"To ask for a refund"},
+{"value":"D","text":"To check on an order"}
+],
+"correctAnswer":"B"
+},
+{
+"id":48,
+"question":"How much will the man's company pay for each board?",
+"image":null,
+"options":[
+{"value":"A","text":"$2.25"},
+{"value":"B","text":"$4.00"},
+{"value":"C","text":"$8.50"},
+{"value":"D","text":"$10.00"}
+],
+"correctAnswer":"A"
+},
+{
+"id":49,
+"question":"What does the man want to receive soon?",
+"image":null,
+"options":[
+{"value":"A","text":"A detailed price list"},
+{"value":"B","text":"Free product samples"},
+{"value":"C","text":"An invoice for the order"},
+{"value":"D","text":"The woman's contact number"}
+],
+"correctAnswer":"C"
+},
+{
+"id":50,
+"question":"What is being discussed?",
+"image":null,
+"options":[
+{"value":"A","text":"The woman's new house"},
+{"value":"B","text":"A meal at a catered event"},
+{"value":"C","text":"The man's recent vacation"},
+{"value":"D","text":"A new eating establishment"}
+],
+"correctAnswer":"D"
+},
+
+{
+"id":51,
+"question":"What will the man do tonight?",
+"image":null,
+"options":[
+{"value":"A","text":"Shop for groceries"},
+{"value":"B","text":"Cook a meal"},
+{"value":"C","text":"Visit his family's home"},
+{"value":"D","text":"Go out for dinner"}
+],
+"correctAnswer":"D"
+},
+{
+"id":52,
+"question":"Which dish does the woman enjoy most?",
+"image":null,
+"options":[
+{"value":"A","text":"Chicken soup"},
+{"value":"B","text":"Rice with beef"},
+{"value":"C","text":"Fried noodles"},
+{"value":"D","text":"Fresh bean sprouts"}
+],
+"correctAnswer":"B"
+},
+{
+"id":53,
+"question":"Who is the woman?",
+"image":null,
+"options":[
+{"value":"A","text":"A company client"},
+{"value":"B","text":"A new employee"},
+{"value":"C","text":"A maintenance worker"},
+{"value":"D","text":"A hiring director"}
+],
+"correctAnswer":"B"
+},
+{
+"id":54,
+"question":"Where are the speakers?",
+"image":null,
+"options":[
+{"value":"A","text":"In the personnel office"},
+{"value":"B","text":"Outside the marketing department"},
+{"value":"C","text":"In the woman's office"},
+{"value":"D","text":"At a department meeting"}
+],
+"correctAnswer":"B"
+},
+{
+"id":55,
+"question":"What does the woman need to do?",
+"image":null,
+"options":[
+{"value":"A","text":"Fill out a job application"},
+{"value":"B","text":"Speak with the building administrator"},
+{"value":"C","text":"Have a security pass made"},
+{"value":"D","text":"Complete a project for the man"}
+],
+"correctAnswer":"C"
+},
+
+{
+"id":56,
+"question":"Who most likely is the man?",
+"image":null,
+"options":[
+{"value":"A","text":"The woman's client"},
+{"value":"B","text":"A candidate for employment"},
+{"value":"C","text":"The woman's assistant"},
+{"value":"D","text":"A PR representative"}
+],
+"correctAnswer":"C"
+},
+{
+"id":57,
+"question":"What will the woman do first?",
+"image":null,
+"options":[
+{"value":"A","text":"Take her belongings to her office"},
+{"value":"B","text":"Contact human resources"},
+{"value":"C","text":"Check all her phone messages"},
+{"value":"D","text":"Share some information with the man"}
+],
+"correctAnswer":"A"
+},
+{
+"id":58,
+"question":"Who is the woman supposed to call?",
+"image":null,
+"options":[
+{"value":"A","text":"Ms. Stevens"},
+{"value":"B","text":"Edward"},
+{"value":"C","text":"Martha Chang"},
+{"value":"D","text":"Brian Yates"}
+],
+"correctAnswer":"D"
+},
+{
+"id":59,
+"question":"Where does the conversation probably take place?",
+"image":null,
+"options":[
+{"value":"A","text":"At a dry cleaner's"},
+{"value":"B","text":"In a clothing store"},
+{"value":"C","text":"At a hotel"},
+{"value":"D","text":"In a bank"}
+],
+"correctAnswer":"C"
+},
+{
+"id":60,
+"question":"Why will the cleaning charge be increased?",
+"image":null,
+"options":[
+{"value":"A","text":"It needs to be done quickly."},
+{"value":"B","text":"The woman is not a regular customer."},
+{"value":"C","text":"It is a difficult stain to remove."},
+{"value":"D","text":"The woman cannot deliver the suit herself."}
+],
+"correctAnswer":"A"
+},
+
+{
+"id":61,
+"question":"How will the woman pay for the suit?",
+"image":null,
+"options":[
+{"value":"A","text":"With a wire transfer"},
+{"value":"B","text":"With a corporate credit card"},
+{"value":"C","text":"With a personal account"},
+{"value":"D","text":"With a company check"}
+],
+"correctAnswer":"B"
+},
+{
+"id":62,
+"question":"What are they discussing?",
+"image":null,
+"options":[
+{"value":"A","text":"Problems in the supply chain"},
+{"value":"B","text":"The poor performance of a coworker"},
+{"value":"C","text":"A sales trend in their industry"},
+{"value":"D","text":"The lowered profit estimate"}
+],
+"correctAnswer":"D"
+},
+{
+"id":63,
+"question":"Why has the firm raised its prices?",
+"image":null,
+"options":[
+{"value":"A","text":"To expand its retail operations"},
+{"value":"B","text":"To enter the high-end market"},
+{"value":"C","text":"To respond to the cost of materials"},
+{"value":"D","text":"To increase its profit estimate"}
+],
+"correctAnswer":"C"
+},
+{
+"id":64,
+"question":"What does the man plan to do?",
+"image":null,
+"options":[
+{"value":"A","text":"Meet with the firm's shareholders"},
+{"value":"B","text":"Contact the supplier about the problem"},
+{"value":"C","text":"Discuss the situation with an executive"},
+{"value":"D","text":"Transfer to the operations department"}
+],
+"correctAnswer":"C"
+},
+{
+"id":65,
+"question":"What are the speakers mainly discussing?",
+"image":null,
+"options":[
+{"value":"A","text":"The different diets they have tried"},
+{"value":"B","text":"The benefits of eating healthy foods"},
+{"value":"C","text":"The man's method for losing weight"},
+{"value":"D","text":"The woman's exercise schedule"}
+],
+"correctAnswer":"C"
+},
+
+{
+"id":66,
+"question":"How has the man changed his diet?",
+"image":null,
+"options":[
+{"value":"A","text":"He eats less at each meal."},
+{"value":"B","text":"He does not eat meat."},
+{"value":"C","text":"He only drinks low-fat milk."},
+{"value":"D","text":"He no longer consumes dairy goods."}
+],
+"correctAnswer":"D"
+},
+{
+"id":67,
+"question":"What does the man say about his exercise routine?",
+"image":null,
+"options":[
+{"value":"A","text":"It has had little effect on his weight."},
+{"value":"B","text":"He now runs farther than he did at first."},
+{"value":"C","text":"It is difficult for him to complete every day."},
+{"value":"D","text":"He prefers to jog in the evening."}
+],
+"correctAnswer":"B"
+},
+{
+"id":68,
+"question":"Who is Mr. Costas?",
+"image":null,
+"options":[
+{"value":"A","text":"A retiring employee"},
+{"value":"B","text":"A recently hired worker"},
+{"value":"C","text":"A job applicant"},
+{"value":"D","text":"A company consultant"}
+],
+"correctAnswer":"C"
+},
+{
+"id":69,
+"question":"What did Mr. Costas mainly do at Stinson Publishing?",
+"image":null,
+"options":[
+{"value":"A","text":"Find qualified workers for positions"},
+{"value":"B","text":"Advertise the company's products"},
+{"value":"C","text":"Help different divisions save money"},
+{"value":"D","text":"Assist the organization's president"}
+],
+"correctAnswer":"C"
+},
+{
+"id":70,
+"question":"Where would Mr. Costas like to work?",
+"image":null,
+"options":[
+{"value":"A","text":"In sales"},
+{"value":"B","text":"In accounting"},
+{"value":"C","text":"In personnel"},
+{"value":"D","text":"In marketing"}
+],
+"correctAnswer":"B"
+},{
+"id":71,
+"question":"What is the speaker discussing?",
+"image":null,
+"options":[
+{"value":"A","text":"A new department manager"},
+{"value":"B","text":"An employee's promotion"},
+{"value":"C","text":"A schedule of events"},
+{"value":"D","text":"A merger with another company"}
+],
+"correctAnswer":"B"
+},
+{
+"id":72,
+"question":"How long has Ms. Garcia worked at the company?",
+"image":null,
+"options":[
+{"value":"A","text":"3 weeks"},
+{"value":"B","text":"6 years"},
+{"value":"C","text":"10 years"},
+{"value":"D","text":"16 years"}
+],
+"correctAnswer":"D"
+},
+{
+"id":73,
+"question":"What is Ms. Garcia's current position?",
+"image":null,
+"options":[
+{"value":"A","text":"President"},
+{"value":"B","text":"Vice president"},
+{"value":"C","text":"Junior editor"},
+{"value":"D","text":"Editorial director"}
+],
+"correctAnswer":"D"
+},
+{
+"id":74,
+"question":"Who is the speaker?",
+"image":null,
+"options":[
+{"value":"A","text":"A restaurant server"},
+{"value":"B","text":"A grocery store clerk"},
+{"value":"C","text":"A cafe chef"},
+{"value":"D","text":"A catering executive"}
+],
+"correctAnswer":"A"
+},
+{
+"id":75,
+"question":"What is the evening's featured main course?",
+"image":null,
+"options":[
+{"value":"A","text":"Raw oysters with fish sauce"},
+{"value":"B","text":"Freshly baked fish pie"},
+{"value":"C","text":"Vegetables served with a special sauce"},
+{"value":"D","text":"Chicken served with mushrooms"}
+],
+"correctAnswer":"D"
+},
+{
+"id":76,
+"question":"What will listeners most likely do next?",
+"image":null,
+"options":[
+{"value":"A","text":"Pay for their meals"},
+{"value":"B","text":"Order their beverages"},
+{"value":"C","text":"Eat their dinners"},
+{"value":"D","text":"Taste their food"}
+],
+"correctAnswer":"B"
+},
+{
+"id":77,
+"question":"What happened at the conference center?",
+"image":null,
+"options":[
+{"value":"A","text":"A renovation project was postponed."},
+{"value":"B","text":"A mistake in scheduling was made."},
+{"value":"C","text":"A telecommunications seminar was held."},
+{"value":"D","text":"A company celebration took place."}
+],
+"correctAnswer":"B"
+},
+{
+"id":78,
+"question":"What is the purpose of the announcement?",
+"image":null,
+"options":[
+{"value":"A","text":"To provide information about a trend in the industry"},
+{"value":"B","text":"To inform workers of the delay of an event"},
+{"value":"C","text":"To encourage employees to attend a conference"},
+{"value":"D","text":"To report on the results of a professional gathering"}
+],
+"correctAnswer":"B"
+},
+{
+"id":79,
+"question":"Who are employees asked to speak with?",
+"image":null,
+"options":[
+{"value":"A","text":"A conference center agent"},
+{"value":"B","text":"A telecommunications director"},
+{"value":"C","text":"The head of their division"},
+{"value":"D","text":"The mayor of Stillwater"}
+],
+"correctAnswer":"C"
+},
+{
+"id":80,
+"question":"Why is the speaker calling?",
+"image":null,
+"options":[
+{"value":"A","text":"To reschedule a dentist appointment"},
+{"value":"B","text":"To ask permission to take a vacation"},
+{"value":"C","text":"To check on a dental patient"},
+{"value":"D","text":"To get some insurance information"}
+],
+"correctAnswer":"A"
+},
+{
+"id":81,
+"question":"What is Dr. Kim doing now?",
+"image":null,
+"options":[
+{"value":"A","text":"Tending to a family matter"},
+{"value":"B","text":"Seeing a patient"},
+{"value":"C","text":"Arriving at the airport"},
+{"value":"D","text":"Traveling to a medical conference"}
+],
+"correctAnswer":"A"
+},
+{
+"id":82,
+"question":"When is the latest Debbie can see the doctor next week?",
+"image":null,
+"options":[
+{"value":"A","text":"Wednesday at 10:00"},
+{"value":"B","text":"Wednesday at 3:30"},
+{"value":"C","text":"Thursday at 9:00"},
+{"value":"D","text":"Thursday at 11:30"}
+],
+"correctAnswer":"C"
+},
+{
+"id":83,
+"question":"Where is this talk most likely being given?",
+"image":null,
+"options":[
+{"value":"A","text":"On a boat"},
+{"value":"B","text":"Inside a tour bus"},
+{"value":"C","text":"At a wildlife park"},
+{"value":"D","text":"In a museum"}
+],
+"correctAnswer":"B"
+},
+{
+"id":84,
+"question":"What are listeners asked to do?",
+"image":null,
+"options":[
+{"value":"A","text":"Stay near the guide at all times"},
+{"value":"B","text":"Refrain from taking pictures until later"},
+{"value":"C","text":"Eat or drink before the departure"},
+{"value":"D","text":"Keep their hands inside the bus"}
+],
+"correctAnswer":"D"
+},
+{
+"id":85,
+"question":"Where will the listeners stop first?",
+"image":null,
+"options":[
+{"value":"A","text":"The Santa Cruz Zoo"},
+{"value":"B","text":"Santa Cruz Ridge"},
+{"value":"C","text":"El Dorado Harbor"},
+{"value":"D","text":"The Downtown Museum"}
+],
+"correctAnswer":"B"
+},
+{
+"id":86,
+"question":"What is the main purpose of this announcement?",
+"image":null,
+"options":[
+{"value":"A","text":"To notify listeners of a recent landing"},
+{"value":"B","text":"To make a final boarding call"},
+{"value":"C","text":"To inquire about missing baggage"},
+{"value":"D","text":"To inform passengers of a delay"}
+],
+"correctAnswer":"A"
+},
+{
+"id":87,
+"question":"When is the announcement made?",
+"image":null,
+"options":[
+{"value":"A","text":"9:05 A.M."},
+{"value":"B","text":"9:10 A.M."},
+{"value":"C","text":"9:15 A.M."},
+{"value":"D","text":"9:20 A.M."}
+],
+"correctAnswer":"A"
+},
+{
+"id":88,
+"question":"Where are listeners asked to meet the passengers?",
+"image":null,
+"options":[
+{"value":"A","text":"Outside the airport"},
+{"value":"B","text":"At the arrival hall"},
+{"value":"C","text":"In front of the boarding gate"},
+{"value":"D","text":"Near the security zone"}
+],
+"correctAnswer":"B"
+},
+{
+"id":89,
+"question":"Why is this broadcast being made?",
+"image":null,
+"options":[
+{"value":"A","text":"To promote an upcoming radio show"},
+{"value":"B","text":"To educate people on a health issue"},
+{"value":"C","text":"To thank supporters of the radio station"},
+{"value":"D","text":"To introduce a new talk show host"}
+],
+"correctAnswer":"A"
+},
+{
+"id":90,
+"question":"What problem is the Springdale School District having?",
+"image":null,
+"options":[
+{"value":"A","text":"Its students are performing poorly."},
+{"value":"B","text":"Its medical office is understaffed."},
+{"value":"C","text":"Its high school has been damaged."},
+{"value":"D","text":"Its budget has already been spent."}
+],
+"correctAnswer":"D"
+},
+{
+"id":91,
+"question":"What will listeners hear next?",
+"image":null,
+"options":[
+{"value":"A","text":"A local news story"},
+{"value":"B","text":"A music program"},
+{"value":"C","text":"A weather report"},
+{"value":"D","text":"A health tip"}
+],
+"correctAnswer":"B"
+},
+{
+"id":92,
+"question":"What is the topic of the talk?",
+"image":null,
+"options":[
+{"value":"A","text":"Plans to hold an industry forum"},
+{"value":"B","text":"Proposals to advertise a new product"},
+{"value":"C","text":"The company's poor sales figures"},
+{"value":"D","text":"A demonstration the speaker attended"}
+],
+"correctAnswer":"D"
+},
+{
+"id":93,
+"question":"What was one feature at the National Automobile Preview?",
+"image":null,
+"options":[
+{"value":"A","text":"Sport-utility vehicles"},
+{"value":"B","text":"Alternatives to gasoline"},
+{"value":"C","text":"Vehicles made by Carlson Motors"},
+{"value":"D","text":"Cars with high fuel efficiency"}
+],
+"correctAnswer":"D"
+},
+{
+"id":94,
+"question":"What does Mr. Lee want?",
+"image":null,
+"options":[
+{"value":"A","text":"To buy a new vehicle"},
+{"value":"B","text":"To form a new design team"},
+{"value":"C","text":"To hear market predictions"},
+{"value":"D","text":"To switch departments"}
+],
+"correctAnswer":"B"
+},
+{
+"id":95,
+"question":"What is being advertised?",
+"image":null,
+"options":[
+{"value":"A","text":"A new automobile model"},
+{"value":"B","text":"An important city council meeting"},
+{"value":"C","text":"An annual entertainment function"},
+{"value":"D","text":"A summertime product sale"}
+],
+"correctAnswer":"C"
+},
+{
+"id":96,
+"question":"How can listeners receive a chance to win a new car?",
+"image":null,
+"options":[
+{"value":"A","text":"By contacting the city's mayor"},
+{"value":"B","text":"By purchasing an admission ticket"},
+{"value":"C","text":"By visiting the city of Stamford"},
+{"value":"D","text":"By attending an educational event"}
+],
+"correctAnswer":"B"
+},
+{
+"id":97,
+"question":"What will visitors have the opportunity to do?",
+"image":null,
+"options":[
+{"value":"A","text":"Purchase fresh produce"},
+{"value":"B","text":"Learn how to bake a cake"},
+{"value":"C","text":"Go on an amusement ride"},
+{"value":"D","text":"Meet Holly Morris"}
+],
+"correctAnswer":"C"
+},
+{
+"id":98,
+"question":"For whom is this announcement intended?",
+"image":null,
+"options":[
+{"value":"A","text":"The firm's shareholders"},
+{"value":"B","text":"Employees in accounting"},
+{"value":"C","text":"Recent company customers"},
+{"value":"D","text":"Members of the sales staff"}
+],
+"correctAnswer":"D"
+},
+{
+"id":99,
+"question":"What is being changed?",
+"image":null,
+"options":[
+{"value":"A","text":"The method used to pay employees"},
+{"value":"B","text":"The timing of a company gathering"},
+{"value":"C","text":"The department's hiring policy"},
+{"value":"D","text":"The company's sales strategy"}
+],
+"correctAnswer":"A"
+},
+{
+"id":100,
+"question":"How will annual bonuses be calculated next year?",
+"image":null,
+"options":[
+{"value":"A","text":"According to sales performance"},
+{"value":"B","text":"According to yearly salary"},
+{"value":"C","text":"According to a fixed percentage"},
+{"value":"D","text":"According to customer feedback"}
+],
+"correctAnswer":"A"
+}
+];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        questions.forEach(q => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            const imageHtml = q.image ? `<img src="${q.image}" width="400">` : "";
+            questionDiv.innerHTML = `
+                <div class="question">Question ${q.id}. ${q.question}</div>
+                ${imageHtml}
+                <div class="translation">${q.translation}</div>
+                <div class="options">
+                    ${q.options.map(opt => `
+                        <label>
+                            <input type="radio" name="q${q.id}" value="${opt.value}">
+                            ${opt.value}. ${opt.text}
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback${q.id}"></div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const radios = questionDiv.querySelectorAll(`input[name="q${q.id}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const feedback = document.getElementById(`feedback${q.id}`);
+                    if (radio.value === q.correctAnswer) {
+                        feedback.textContent = 'Correct!';
+                        feedback.classList.remove('incorrect');
+                        feedback.classList.add('correct');
+                    } else {
+                        const correctOption = q.options.find(opt => opt.value === q.correctAnswer);
+                        feedback.textContent = `Incorrect. The correct answer is ${correctOption.value}. ${correctOption.text}.`;
+                        feedback.classList.remove('correct');
+                        feedback.classList.add('incorrect');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

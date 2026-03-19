@@ -1,0 +1,602 @@
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomato Actual test 13 (Part 1,2)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .question-container {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .translation {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tomato Actual test 13 (Part 1,2)</h1>
+        <audio controls style="margin-bottom:20px;">
+        <source src="audio/ActualTest13.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div id="quiz-container"></div>
+
+    <script>
+        const questions = [
+{
+"id":1,
+"question":"Look at the picture marked number one in your test book.",
+"image": "images/1.png",
+"translation":"Nhìn vào hình số 1 trong sách.",
+"options":[
+{"text":"She's cleaning the vehicle.","value":"A"},
+{"text":"She's using the washing machine.","value":"B"},
+{"text":"She's putting gas in the car.","value":"C"},
+{"text":"She's wiping the windshield.","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":2,
+"question":"Look at the picture marked number two in your test book.",
+"image": "images/2.png",
+"translation":"Nhìn vào hình số 2 trong sách.",
+"options":[
+{"text":"The customers are studying the menu.","value":"A"},
+{"text":"The customers are having a chat.","value":"B"},
+{"text":"The customers are looking at the waiter.","value":"C"},
+{"text":"The customers are waiting for a table.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":3,
+"question":"Look at the picture marked number three in your test book.",
+"image": "images/3.png",
+"translation":"Nhìn vào hình số 3 trong sách.",
+"options":[
+{"text":"He's working in a ticket booth.","value":"A"},
+{"text":"He's applying for a credit card.","value":"B"},
+{"text":"He's purchasing a snack.","value":"C"},
+{"text":"He's putting down his child.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":4,
+"question":"Look at the picture marked number four in your test book.",
+"image": "images/4.png",
+"translation":"Nhìn vào hình số 4 trong sách.",
+"options":[
+{"text":"Some goods are on display.","value":"A"},
+{"text":"Some fruits are being weighed.","value":"B"},
+{"text":"All of the stalls are closed.","value":"C"},
+{"text":"The shoppers are entering the store.","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":5,
+"question":"Look at the picture marked number five in your test book.",
+"image": "images/5.png",
+"translation":"Nhìn vào hình số 5 trong sách.",
+"options":[
+{"text":"A man is standing in an airport terminal.","value":"A"},
+{"text":"A man is descending the staircase.","value":"B"},
+{"text":"A man is about to leave the plane.","value":"C"},
+{"text":"A man is boarding the aircraft.","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":6,
+"question":"Look at the picture marked number six in your test book.",
+"image": "images/6.png",
+"translation":"Nhìn vào hình số 6 trong sách.",
+"options":[
+{"text":"The ships are caught in a storm.","value":"A"},
+{"text":"The dock is being repaved.","value":"B"},
+{"text":"Containers are being loaded onto the ship.","value":"C"},
+{"text":"Crates are floating on the water.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":7,
+"question":"Look at the picture marked number seven in your test book.",
+"image": "images/7.png",
+"translation":"Nhìn vào hình số 7 trong sách.",
+"options":[
+{"text":"The farmers are resting in a field.","value":"A"},
+{"text":"The crops are being harvested.","value":"B"},
+{"text":"The vegetables have been sold.","value":"C"},
+{"text":"The fields are being plowed.","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":8,
+"question":"Look at the picture marked number eight in your test book.",
+"image": "images/8.png",
+"translation":"Nhìn vào hình số 8 trong sách.",
+"options":[
+{"text":"They're eating a picnic lunch.","value":"A"},
+{"text":"They're driving through the countryside.","value":"B"},
+{"text":"They're standing beside the vehicle.","value":"C"},
+{"text":"They're going to work together.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":9,
+"question":"Look at the picture marked number nine in your test book.",
+"image": "images/9.png",
+"translation":"Nhìn vào hình số 9 trong sách.",
+"options":[
+{"text":"The stones are being transported.","value":"A"},
+{"text":"The castle has been restored.","value":"B"},
+{"text":"The ruins are on a hilltop.","value":"C"},
+{"text":"The building is under construction.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":10,
+"question":"Look at the picture marked number ten in your test book.",
+"image": "images/10.png",
+"translation":"Nhìn vào hình số 10 trong sách.",
+"options":[
+{"text":"The woman is looking for some equipment.","value":"A"},
+{"text":"The woman is taking a photograph.","value":"B"},
+{"text":"The woman is staring at the scenery.","value":"C"},
+{"text":"The woman is watching a performance.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":11,
+"question":"Where did you go after the party?",
+"translation":"Bạn đã đi đâu sau bữa tiệc?",
+"options":[
+{"text":"For Mark's birthday.","value":"A"},
+{"text":"To a friend's house.","value":"B"},
+{"text":"I didn't see you there.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":12,
+"question":"When is your train leaving for Boston?",
+"translation":"Khi nào tàu của bạn rời Boston?",
+"options":[
+{"text":"At one o'clock.","value":"A"},
+{"text":"Yes, I left it behind.","value":"B"},
+{"text":"I've been training for two months.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":13,
+"question":"Which design do you prefer?",
+"translation":"Bạn thích thiết kế nào?",
+"options":[
+{"text":"I haven't signed it.","value":"A"},
+{"text":"No, I didn't.","value":"B"},
+{"text":"They're both very good.","value":"C"}
+],
+"correctAnswer":"C"
+},
+{
+"id":14,
+"question":"How would you like to join our team?",
+"translation":"Bạn có muốn tham gia nhóm của chúng tôi không?",
+"options":[
+{"text":"The marketing team.","value":"A"},
+{"text":"I'll think about it.","value":"B"},
+{"text":"Yes, I enjoyed it.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":15,
+"question":"The traffic is backed up for miles.",
+"translation":"Giao thông bị tắc hàng dặm.",
+"options":[
+{"text":"Yes, there was an accident this morning.","value":"A"},
+{"text":"It's backed up on the hard drive.","value":"B"},
+{"text":"I take my car to work.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":16,
+"question":"Can you give me change for a $20 bill?",
+"translation":"Bạn có thể đổi tiền lẻ cho tờ 20 đô không?",
+"options":[
+{"text":"I'm afraid not.","value":"A"},
+{"text":"I exchanged it at the bank.","value":"B"},
+{"text":"Can you afford it?","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":17,
+"question":"Why didn't you ask for a refund?",
+"translation":"Tại sao bạn không yêu cầu hoàn tiền?",
+"options":[
+{"text":"I didn't want to get into a big argument.","value":"A"},
+{"text":"The fund is for emergencies only.","value":"B"},
+{"text":"Because it was malfunctioning.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":18,
+"question":"How big is the master bedroom?",
+"translation":"Phòng ngủ chính lớn cỡ nào?",
+"options":[
+{"text":"The same size as the living room.","value":"A"},
+{"text":"In the bathroom.","value":"B"},
+{"text":"I haven't mastered it.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":19,
+"question":"He issued you a uniform, didn't he?",
+"translation":"Anh ấy đã cấp đồng phục cho bạn đúng không?",
+"options":[
+{"text":"According to this week's issue.","value":"A"},
+{"text":"Fill out the form.","value":"B"},
+{"text":"No, he couldn't find a spare one.","value":"C"}
+],
+"correctAnswer":"C"
+},
+{
+"id":20,
+"question":"How about coming to the opera with me?",
+"translation":"Bạn đi xem opera với tôi nhé?",
+"options":[
+{"text":"Yes, it's open.","value":"A"},
+{"text":"I'd love to.","value":"B"},
+{"text":"I'm not sure what it's about.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":21,
+"question":"Will Mr. Jones be there on Monday?",
+"translation":"Ông Jones có ở đó vào thứ Hai không?",
+"options":[
+{"text":"Yes, he has been.","value":"A"},
+{"text":"I have an appointment.","value":"B"},
+{"text":"No, he can't make it.","value":"C"}
+],
+"correctAnswer":"C"
+},
+{
+"id":22,
+"question":"Is there much coffee left or do I need to buy some?",
+"translation":"Còn nhiều cà phê không hay tôi cần mua thêm?",
+"options":[
+{"text":"Please get some more.","value":"A"},
+{"text":"No, I'll go to the supermarket.","value":"B"},
+{"text":"I'm not thirsty.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":23,
+"question":"Do you know how to sign up for the online course?",
+"translation":"Bạn biết cách đăng ký khóa học online không?",
+"options":[
+{"text":"Follow the steps on the website.","value":"A"},
+{"text":"Yes, the course is challenging.","value":"B"},
+{"text":"I saw the signpost on the way here.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":24,
+"question":"You saw the headline in this morning's paper, right?",
+"translation":"Bạn đã thấy tiêu đề trên báo sáng nay đúng không?",
+"options":[
+{"text":"The deadline is tomorrow.","value":"A"},
+{"text":"I filed my paperwork.","value":"B"},
+{"text":"Yes, I read about it.","value":"C"}
+],
+"correctAnswer":"C"
+},
+{
+"id":25,
+"question":"Who is on duty this weekend?",
+"translation":"Ai trực cuối tuần này?",
+"options":[
+{"text":"At the duty-free shop.","value":"A"},
+{"text":"Why don't you check the timetable?","value":"B"},
+{"text":"I don't know whose it is.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":26,
+"question":"When did you last speak with Mr. Folks?",
+"translation":"Lần cuối bạn nói chuyện với ông Folks là khi nào?",
+"options":[
+{"text":"In his office.","value":"A"},
+{"text":"Yesterday afternoon.","value":"B"},
+{"text":"I'm looking forward to it.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":27,
+"question":"There's no one at the reception desk.",
+"translation":"Không có ai ở quầy lễ tân.",
+"options":[
+{"text":"The secretary must be on a break.","value":"A"},
+{"text":"The reception was last week.","value":"B"},
+{"text":"Yes, we hired a woman.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":28,
+"question":"Haven't we already seen this program?",
+"translation":"Chúng ta đã xem chương trình này rồi phải không?",
+"options":[
+{"text":"Yes, it's a repeat.","value":"A"},
+{"text":"An action scene.","value":"B"},
+{"text":"Yes, I'm a programmer.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":29,
+"question":"Where is the best place to get cheap electronics?",
+"translation":"Nơi nào mua đồ điện tử giá rẻ tốt nhất?",
+"options":[
+{"text":"There's a secondhand store across the road.","value":"A"},
+{"text":"I haven't seen your new place.","value":"B"},
+{"text":"It wasn't that cheap.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":30,
+"question":"What do you want to do this evening?",
+"translation":"Tối nay bạn muốn làm gì?",
+"options":[
+{"text":"No, I don't want to.","value":"A"},
+{"text":"Let's just relax at home.","value":"B"},
+{"text":"Have a good night.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":31,
+"question":"Who is running for association president this year?",
+"translation":"Ai đang tranh cử chủ tịch hiệp hội năm nay?",
+"options":[
+{"text":"Lyall Beg is the leading candidate.","value":"A"},
+{"text":"He's my associate.","value":"B"},
+{"text":"It's a present.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":32,
+"question":"Jenny Smith told me that the board is about to appoint a new CEO.",
+"translation":"Jenny Smith nói rằng hội đồng sắp bổ nhiệm CEO mới.",
+"options":[
+{"text":"Yes, I'm disappointed in her.","value":"A"},
+{"text":"On the notice board.","value":"B"},
+{"text":"I wonder who it is.","value":"C"}
+],
+"correctAnswer":"C"
+},
+{
+"id":33,
+"question":"You aren't going to your book club meeting tonight, are you?",
+"translation":"Tối nay bạn không đi họp câu lạc bộ sách phải không?",
+"options":[
+{"text":"It's been cancelled.","value":"A"},
+{"text":"I've already booked it.","value":"B"},
+{"text":"No, you're not a member.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":34,
+"question":"Why don't we send the package by express courier?",
+"translation":"Sao chúng ta không gửi gói hàng bằng chuyển phát nhanh?",
+"options":[
+{"text":"It's an expression.","value":"A"},
+{"text":"No, that would be too expensive.","value":"B"},
+{"text":"Because it's faster.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":35,
+"question":"If the weather doesn't improve, we might have to cancel the picnic.",
+"translation":"Nếu thời tiết không cải thiện, chúng ta có thể phải hủy buổi picnic.",
+"options":[
+{"text":"I don't know whether they went or not.","value":"A"},
+{"text":"That would be a shame.","value":"B"},
+{"text":"Yes, it's a big improvement.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":36,
+"question":"Doesn't Miss Jacobs work for a law firm?",
+"translation":"Cô Jacobs không làm việc cho công ty luật sao?",
+"options":[
+{"text":"No, she didn't.","value":"A"},
+{"text":"Who told you that?","value":"B"},
+{"text":"Our lawyer is taking care of it.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":37,
+"question":"Why is the manager currently out of reach?",
+"translation":"Tại sao quản lý hiện không liên lạc được?",
+"options":[
+{"text":"That's the current policy.","value":"A"},
+{"text":"I reached over and grabbed it.","value":"B"},
+{"text":"Isn't he at a conference in Atlanta?","value":"C"}
+],
+"correctAnswer":"C"
+},
+{
+"id":38,
+"question":"Could you help me rearrange the furniture?",
+"translation":"Bạn có thể giúp tôi sắp xếp lại đồ nội thất không?",
+"options":[
+{"text":"She made the arrangements.","value":"A"},
+{"text":"Yes, in a minute.","value":"B"},
+{"text":"The apartment is fully furnished.","value":"C"}
+],
+"correctAnswer":"B"
+},
+{
+"id":39,
+"question":"Do you want to eat on the patio or in the dining room?",
+"translation":"Bạn muốn ăn ngoài sân hay trong phòng ăn?",
+"options":[
+{"text":"I'd rather eat outside.","value":"A"},
+{"text":"They're very compatible.","value":"B"},
+{"text":"Yes, that sounds nice.","value":"C"}
+],
+"correctAnswer":"A"
+},
+{
+"id":40,
+"question":"How should we get to the stadium from here?",
+"translation":"Chúng ta nên đến sân vận động từ đây bằng cách nào?",
+"options":[
+{"text":"No, we can't stay here.","value":"A"},
+{"text":"About two or three miles.","value":"B"},
+{"text":"On foot.","value":"C"}
+],
+"correctAnswer":"C"
+}
+];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        questions.forEach(q => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            const imageHtml = q.image ? `<img src="${q.image}" width="400">` : "";
+            questionDiv.innerHTML = `
+                <div class="question">Question ${q.id}. ${q.question}</div>
+                ${imageHtml}
+                <div class="translation">${q.translation}</div>
+                <div class="options">
+                    ${q.options.map(opt => `
+                        <label>
+                            <input type="radio" name="q${q.id}" value="${opt.value}">
+                            ${opt.value}. ${opt.text}
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback${q.id}"></div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const radios = questionDiv.querySelectorAll(`input[name="q${q.id}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const feedback = document.getElementById(`feedback${q.id}`);
+                    if (radio.value === q.correctAnswer) {
+                        feedback.textContent = 'Correct!';
+                        feedback.classList.remove('incorrect');
+                        feedback.classList.add('correct');
+                    } else {
+                        const correctOption = q.options.find(opt => opt.value === q.correctAnswer);
+                        feedback.textContent = `Incorrect. The correct answer is ${correctOption.value}. ${correctOption.text}.`;
+                        feedback.classList.remove('correct');
+                        feedback.classList.add('incorrect');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

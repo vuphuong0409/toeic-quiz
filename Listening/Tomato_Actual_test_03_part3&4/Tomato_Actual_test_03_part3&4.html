@@ -1,0 +1,862 @@
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomato Actual test 03 (Part 3,4)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .question-container {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .translation {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tomato Actual test 03 (Part 3,4)</h1>
+    <audio controls style="margin-bottom:20px;">
+        <source src="audio/ActualTest03.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div id="quiz-container"></div>
+
+    <script>
+        const questions = [
+{
+"id":41,
+"question":"What is the woman supposed to do?",
+"translation":"",
+"options":[
+{"text":"Assist the man","value":"A"},
+{"text":"Meet the head of finances","value":"B"},
+{"text":"Give a presentation","value":"C"},
+{"text":"Reschedule a meeting","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":42,
+"question":"When will the meeting take place?",
+"translation":"",
+"options":[
+{"text":"This afternoon","value":"A"},
+{"text":"Tonight","value":"B"},
+{"text":"Tomorrow morning","value":"C"},
+{"text":"Tomorrow afternoon","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":43,
+"question":"Why is the man disappointed?",
+"translation":"",
+"options":[
+{"text":"He will have to work late tonight.","value":"A"},
+{"text":"The meeting conflicts with his schedule.","value":"B"},
+{"text":"He was not invited to an event.","value":"C"},
+{"text":"The presentation was unsuccessful.","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":44,
+"question":"Where does this conversation probably take place?",
+"translation":"",
+"options":[
+{"text":"In the woman's kitchen","value":"A"},
+{"text":"In an appliance store","value":"B"},
+{"text":"In an office cafeteria","value":"C"},
+{"text":"In a pottery factory","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":45,
+"question":"What does the woman think of the Kitchen Pro?",
+"translation":"",
+"options":[
+{"text":"It offers the best value.","value":"A"},
+{"text":"It looks attractive.","value":"B"},
+{"text":"Its decoration is nice.","value":"C"},
+{"text":"Its price is high.","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":46,
+"question":"What feature does the dishwasher include?",
+"translation":"",
+"options":[
+{"text":"An extra drawer for storage","value":"A"},
+{"text":"The ability to wash large items","value":"B"},
+{"text":"An after-purchase rebate","value":"C"},
+{"text":"Technology that reduces water use","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":47,
+"question":"What are they discussing?",
+"translation":"",
+"options":[
+{"text":"The employment benefits they receive","value":"A"},
+{"text":"The company's recent sales figures","value":"B"},
+{"text":"The staffing needs of a department","value":"C"},
+{"text":"The performance of new workers","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":48,
+"question":"Who works in sales?",
+"translation":"",
+"options":[
+{"text":"Lisa","value":"A"},
+{"text":"Jason","value":"B"},
+{"text":"Ben","value":"C"},
+{"text":"Diane","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":49,
+"question":"What is the man's opinion?",
+"translation":"",
+"options":[
+{"text":"The design team is exceeding his expectations.","value":"A"},
+{"text":"More workers should be hired.","value":"B"},
+{"text":"Most employees have not impressed him.","value":"C"},
+{"text":"The sales department is talented.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":50,
+"question":"What does the man say about the food supplier?",
+"translation":"",
+"options":[
+{"text":"Its contract is unfair.","value":"A"},
+{"text":"Its prices are too high.","value":"B"},
+{"text":"Its service is unsatisfactory.","value":"C"},
+{"text":"Its products are poor.","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":51,
+"question":"When will the contract expire?",
+"translation":"",
+"options":[
+{"text":"Tomorrow","value":"A"},
+{"text":"Next week","value":"B"},
+{"text":"Next month","value":"C"},
+{"text":"Next year","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":52,
+"question":"What does the woman recommend?",
+"translation":"",
+"options":[
+{"text":"Revising the current contract","value":"A"},
+{"text":"Discussing the problem with the supplier","value":"B"},
+{"text":"Renewing the contract for a shorter term","value":"C"},
+{"text":"Switching to a different supplier","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":53,
+"question":"Where is the man?",
+"translation":"",
+"options":[
+{"text":"Inside a taxi","value":"A"},
+{"text":"At his office","value":"B"},
+{"text":"On a bus","value":"C"},
+{"text":"At a restaurant","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":54,
+"question":"Why will the woman be late?",
+"translation":"",
+"options":[
+{"text":"She is stuck in traffic.","value":"A"},
+{"text":"She had car trouble.","value":"B"},
+{"text":"She helped a coworker.","value":"C"},
+{"text":"She is eating dinner.","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":55,
+"question":"What does the man predict?",
+"translation":"",
+"options":[
+{"text":"The restaurant will be crowded.","value":"A"},
+{"text":"The woman will postpone their meeting.","value":"B"},
+{"text":"City traffic will improve soon.","value":"C"},
+{"text":"He will arrive within 20 minutes.","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":56,
+"question":"What is the man's problem?",
+"translation":"",
+"options":[
+{"text":"His computer is malfunctioning.","value":"A"},
+{"text":"He cannot afford to buy some important software.","value":"B"},
+{"text":"His spreadsheet files were deleted.","value":"C"},
+{"text":"He does not understand the computer software.","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":57,
+"question":"What does the woman recommend?",
+"translation":"",
+"options":[
+{"text":"Asking a coworker for assistance","value":"A"},
+{"text":"Creating a new spreadsheet","value":"B"},
+{"text":"Signing up for a tutorial class","value":"C"},
+{"text":"Using the program's help feature","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":58,
+"question":"How can the man run the tutorial?",
+"translation":"",
+"options":[
+{"text":"By clicking the appropriate button","value":"A"},
+{"text":"By purchasing additional software","value":"B"},
+{"text":"By using the woman's computer","value":"C"},
+{"text":"By closing the spreadsheet program","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":59,
+"question":"What are the speakers talking about?",
+"translation":"",
+"options":[
+{"text":"Their friend's schedule","value":"A"},
+{"text":"A problem with a coworker","value":"B"},
+{"text":"Their plans for Friday night","value":"C"},
+{"text":"A movie they saw last weekend","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":60,
+"question":"What does the man ask the woman?",
+"translation":"",
+"options":[
+{"text":"When she wants to see the movie","value":"A"},
+{"text":"Where she will have dinner","value":"B"},
+{"text":"What time she gets off work","value":"C"},
+{"text":"How to make restaurant reservations","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":61,
+"question":"Who does the woman need to speak with?",
+"translation":"",
+"options":[
+{"text":"Jude","value":"A"},
+{"text":"Cassandra","value":"B"},
+{"text":"Walter","value":"C"},
+{"text":"Janet","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":62,
+"question":"What kind of company does the man work for?",
+"translation":"",
+"options":[
+{"text":"A home cleaning service","value":"A"},
+{"text":"A furniture manufacturer","value":"B"},
+{"text":"A real estate agency","value":"C"},
+{"text":"A professional moving firm","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":63,
+"question":"How much will the woman pay per hour?",
+"translation":"",
+"options":[
+{"text":"25 dollars","value":"A"},
+{"text":"30 dollars","value":"B"},
+{"text":"45 dollars","value":"C"},
+{"text":"50 dollars","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":64,
+"question":"What will happen this week?",
+"translation":"",
+"options":[
+{"text":"The woman will move to a new house.","value":"A"},
+{"text":"Workers will come to assess the job.","value":"B"},
+{"text":"The woman will pay the man's company.","value":"C"},
+{"text":"Furniture will be delivered to the woman.","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":65,
+"question":"Who most likely is the woman?",
+"translation":"",
+"options":[
+{"text":"A postal worker","value":"A"},
+{"text":"An office repairperson","value":"B"},
+{"text":"A supply salesperson","value":"C"},
+{"text":"A company shareholder","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":66,
+"question":"How many copiers does the man's company have?",
+"translation":"",
+"options":[
+{"text":"1","value":"A"},
+{"text":"3","value":"B"},
+{"text":"5","value":"C"},
+{"text":"8","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":67,
+"question":"What does the woman ask the man to do?",
+"translation":"",
+"options":[
+{"text":"Correctly complete an order document","value":"A"},
+{"text":"Purchase some new laser printers","value":"B"},
+{"text":"Send her a form by rush delivery","value":"C"},
+{"text":"Confirm his fax number","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":68,
+"question":"Why is the woman calling the man?",
+"translation":"",
+"options":[
+{"text":"To check the status of a document","value":"A"},
+{"text":"To report a problem with a fax machine","value":"B"},
+{"text":"To schedule a meeting for her employer","value":"C"},
+{"text":"To offer advice on an investment portfolio","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":69,
+"question":"What is Mr. Forbes being authorized to do?",
+"translation":"",
+"options":[
+{"text":"Check the company's records","value":"A"},
+{"text":"Make a new contract","value":"B"},
+{"text":"Manage the firm's investments","value":"C"},
+{"text":"Hire some new employees","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":70,
+"question":"What will the man do?",
+"translation":"",
+"options":[
+{"text":"Visit the woman today","value":"A"},
+{"text":"Sign an important form","value":"B"},
+{"text":"Speak to the CEO","value":"C"},
+{"text":"Invest some money","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":71,
+"question":"Who most likely is the speaker?",
+"translation":"",
+"options":[
+{"text":"A radio show host","value":"A"},
+{"text":"A financial advisor","value":"B"},
+{"text":"A popular author","value":"C"},
+{"text":"A real estate agent","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":72,
+"question":"Which is Mr. Morgan's most recent book?",
+"translation":"",
+"options":[
+{"text":"The Housing Market in Today's Economy","value":"A"},
+{"text":"Remodeling for Success","value":"B"},
+{"text":"Money Smarts","value":"C"},
+{"text":"How to Buy a House with Nothing","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":73,
+"question":"What is Mr. Morgan going to do?",
+"translation":"",
+"options":[
+{"text":"Introduce a guest","value":"A"},
+{"text":"Offer renovation advice to listeners","value":"B"},
+{"text":"Autograph copies of his books","value":"C"},
+{"text":"Remodel his house","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":74,
+"question":"What is taking place?",
+"translation":"",
+"options":[
+{"text":"An electronics sale","value":"A"},
+{"text":"A product demonstration","value":"B"},
+{"text":"A photography class","value":"C"},
+{"text":"A telecommunications lecture","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":75,
+"question":"Which button makes a telephone call?",
+"translation":"",
+"options":[
+{"text":"The blue button","value":"A"},
+{"text":"The brown button","value":"B"},
+{"text":"The red button","value":"C"},
+{"text":"The green button","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":76,
+"question":"What is included in the camera function?",
+"translation":"",
+"options":[
+{"text":"Buttons that zoom in and out","value":"A"},
+{"text":"A removable camera lens","value":"B"},
+{"text":"The ability to email photos","value":"C"},
+{"text":"A button that operates a flash","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":77,
+"question":"What is the purpose of this announcement?",
+"translation":"",
+"options":[
+{"text":"To explain the new emergency procedures","value":"A"},
+{"text":"To notify employees of the company's relocation","value":"B"},
+{"text":"To report changes to the firm's staff","value":"C"},
+{"text":"To inform workers of a maintenance project","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":78,
+"question":"What will happen over the weekend?",
+"translation":"",
+"options":[
+{"text":"New employees will be trained.","value":"A"},
+{"text":"Office items will be transferred.","value":"B"},
+{"text":"Building renovations will be completed.","value":"C"},
+{"text":"All employees will work overtime.","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":79,
+"question":"Where should employees go next Monday?",
+"translation":"",
+"options":[
+{"text":"Building 2","value":"A"},
+{"text":"Building 3","value":"B"},
+{"text":"Building 5","value":"C"},
+{"text":"Building 6","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":80,
+"question":"Who is talking?",
+"translation":"",
+"options":[
+{"text":"A wine manufacturer","value":"A"},
+{"text":"A scientist","value":"B"},
+{"text":"A cook","value":"C"},
+{"text":"A tour guide","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":81,
+"question":"What is available at the store?",
+"translation":"",
+"options":[
+{"text":"Books about Ridge View Orchards","value":"A"},
+{"text":"Seeds for watermelon and grape vines","value":"B"},
+{"text":"Candies made by Ridge View Orchards","value":"C"},
+{"text":"Fruits and juices from around the world","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":82,
+"question":"What will listeners see first?",
+"translation":"",
+"options":[
+{"text":"Berry bushes","value":"A"},
+{"text":"Lemon trees","value":"B"},
+{"text":"Apple trees","value":"C"},
+{"text":"The store","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":83,
+"question":"What is being advertised?",
+"translation":"",
+"options":[
+{"text":"A cooking school","value":"A"},
+{"text":"A local restaurant","value":"B"},
+{"text":"An Italian vacation","value":"C"},
+{"text":"A grocery store","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":84,
+"question":"What is mentioned about La Bella Rosa?",
+"translation":"",
+"options":[
+{"text":"It has been in business for five years.","value":"A"},
+{"text":"It has won several international awards.","value":"B"},
+{"text":"It was originally located in Florence.","value":"C"},
+{"text":"Its wine is imported from Italy.","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":85,
+"question":"What is Carla Rizzari famous for?",
+"translation":"",
+"options":[
+{"text":"Her Italian language school","value":"A"},
+{"text":"Her chain of restaurants","value":"B"},
+{"text":"Her award-winning meal","value":"C"},
+{"text":"Her business management","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":86,
+"question":"Why is this announcement being made?",
+"translation":"",
+"options":[
+{"text":"To prepare passengers for arrival","value":"A"},
+{"text":"To report the delay of a flight","value":"B"},
+{"text":"To introduce the flight attendants","value":"C"},
+{"text":"To welcome visitors to Denver","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":87,
+"question":"What is available at the gate?",
+"translation":"",
+"options":[
+{"text":"A map of the airport terminal","value":"A"},
+{"text":"Information about connecting flights","value":"B"},
+{"text":"The passengers' luggage","value":"C"},
+{"text":"Boarding passes for the flight","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":88,
+"question":"What does the captain say will happen immediately?",
+"translation":"",
+"options":[
+{"text":"A flight will depart.","value":"A"},
+{"text":"The movies will be turned off.","value":"B"},
+{"text":"A meal will be served.","value":"C"},
+{"text":"The airplane will land at Denver.","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":89,
+"question":"What is the speaker discussing?",
+"translation":"",
+"options":[
+{"text":"The company's sales performance","value":"A"},
+{"text":"The schedule of a meeting","value":"B"},
+{"text":"A problem with area schools","value":"C"},
+{"text":"A plan to support local students","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":90,
+"question":"How will the scholarship fund be paid for?",
+"translation":"",
+"options":[
+{"text":"With contributions from the public","value":"A"},
+{"text":"With a share of the company's earnings","value":"B"},
+{"text":"With donations from company customers","value":"C"},
+{"text":"With the help of a charity organization","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":91,
+"question":"Why should someone contact the public relations office?",
+"translation":"",
+"options":[
+{"text":"To recommend a charity initiative","value":"A"},
+{"text":"To assist in arranging the program","value":"B"},
+{"text":"To thank the speaker for her help","value":"C"},
+{"text":"To offer an idea for increasing sales","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":92,
+"question":"Why has the woman contacted the man?",
+"translation":"",
+"options":[
+{"text":"To suggest an activity for him to pursue","value":"A"},
+{"text":"To tell him that his bag has been found","value":"B"},
+{"text":"To inform him of a change in schedule","value":"C"},
+{"text":"To thank him for his business","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":93,
+"question":"When will Mr. Park receive his suitcase?",
+"translation":"",
+"options":[
+{"text":"This afternoon","value":"A"},
+{"text":"Tonight","value":"B"},
+{"text":"Tomorrow morning","value":"C"},
+{"text":"Tomorrow afternoon","value":"D"}
+],
+"correctAnswer":"C"
+},
+{
+"id":94,
+"question":"Where will the suitcase be sent?",
+"translation":"",
+"options":[
+{"text":"To Mr. Park's hotel","value":"A"},
+{"text":"To the airline's offices","value":"B"},
+{"text":"To the Honolulu airport","value":"C"},
+{"text":"To Mr. Park's office","value":"D"}
+],
+"correctAnswer":"A"
+},
+{
+"id":95,
+"question":"What is being announced?",
+"translation":"",
+"options":[
+{"text":"New hiring policies","value":"A"},
+{"text":"The start of a weekly training program","value":"B"},
+{"text":"A new work schedule","value":"C"},
+{"text":"Details of an upcoming function","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":96,
+"question":"What will be discussed next Monday?",
+"translation":"",
+"options":[
+{"text":"Basic guidelines for hiring new employees","value":"A"},
+{"text":"Managerial strategies for the department","value":"B"},
+{"text":"Recent renovations to the conference room","value":"C"},
+{"text":"New rules for the company's warranties","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":97,
+"question":"When will a general review be held?",
+"translation":"",
+"options":[
+{"text":"October 5th","value":"A"},
+{"text":"October 12th","value":"B"},
+{"text":"October 19th","value":"C"},
+{"text":"October 26th","value":"D"}
+],
+"correctAnswer":"D"
+},
+{
+"id":98,
+"question":"How many contracts were added last year?",
+"translation":"",
+"options":[
+{"text":"1","value":"A"},
+{"text":"5","value":"B"},
+{"text":"6","value":"C"},
+{"text":"17","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":99,
+"question":"What is the main purpose of the speech?",
+"translation":"",
+"options":[
+{"text":"To describe the success of a project","value":"A"},
+{"text":"To announce an employee's retirement","value":"B"},
+{"text":"To present a performance award","value":"C"},
+{"text":"To introduce a new company manager","value":"D"}
+],
+"correctAnswer":"B"
+},
+{
+"id":100,
+"question":"What additional duty did Mr. Schmitt have?",
+"translation":"",
+"options":[
+{"text":"Assisting the company's CEO","value":"A"},
+{"text":"Explaining sales contracts to clients","value":"B"},
+{"text":"Speaking at the company event","value":"C"},
+{"text":"Arranging a yearly company celebration","value":"D"}
+],
+"correctAnswer":"D"
+}
+];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        questions.forEach(q => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            const imageHtml = q.image ? `<img src="${q.image}" width="400">` : "";
+            questionDiv.innerHTML = `
+                <div class="question">Question ${q.id}. ${q.question}</div>
+                ${imageHtml}
+                <div class="translation">${q.translation}</div>
+                <div class="options">
+                    ${q.options.map(opt => `
+                        <label>
+                            <input type="radio" name="q${q.id}" value="${opt.value}">
+                            ${opt.value}. ${opt.text}
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback${q.id}"></div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const radios = questionDiv.querySelectorAll(`input[name="q${q.id}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const feedback = document.getElementById(`feedback${q.id}`);
+                    if (radio.value === q.correctAnswer) {
+                        feedback.textContent = 'Correct!';
+                        feedback.classList.remove('incorrect');
+                        feedback.classList.add('correct');
+                    } else {
+                        const correctOption = q.options.find(opt => opt.value === q.correctAnswer);
+                        feedback.textContent = `Incorrect. The correct answer is ${correctOption.value}. ${correctOption.text}.`;
+                        feedback.classList.remove('correct');
+                        feedback.classList.add('incorrect');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

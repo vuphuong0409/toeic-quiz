@@ -1,0 +1,592 @@
+
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomato Actual test 14 (Part 1,2)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .question-container {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .translation {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tomato Actual test 14 (Part 1,2)</h1>
+    <audio controls style="margin-bottom:20px;">
+        <source src="audio/ActualTest14.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div id="quiz-container"></div>
+
+    <script>
+        const questions = [
+  {
+    "id": 1,
+    "question": "Look at the picture marked number one in your test book.",
+    "image": "images/1.png",
+    "options": [
+      { "text": "He's climbing the stairs", "value": "A" },
+      { "text": "He's crossing his legs", "value": "B" },
+      { "text": "He's looking at some notes", "value": "C" },
+      { "text": "He's submitting an assignment", "value": "D" }
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 2,
+    "question": "Look at the picture marked number two in your test book.",
+    "image": "images/2.png",
+    "options": [
+      { "text": "She's searching for photos", "value": "A" },
+      { "text": "She's painting a picture", "value": "B" },
+      { "text": "She's sitting on the lawn", "value": "C" },
+      { "text": "She's approaching the water", "value": "D" }
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 3,
+    "question": "Look at the picture marked number three in your test book.",
+    "image": "images/3.png",
+    "options": [
+      { "text": "The man is carrying a basket", "value": "A" },
+      { "text": "The man is pushing a baggage trolley", "value": "B" },
+      { "text": "The man is waiting at a supermarket checkout", "value": "C" },
+      { "text": "The man is reaching into a shopping cart", "value": "D" }
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 4,
+    "question": "Look at the picture marked number four in your test book.",
+    "image": "images/4.png",
+    "options": [
+      { "text": "The drapes have been drawn", "value": "A" },
+      { "text": "The flowers are being picked", "value": "B" },
+      { "text": "The table is covered with fabric", "value": "C" },
+      { "text": "The curtains are being sewn", "value": "D" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 5,
+    "question": "Look at the picture marked number five in your test book.",
+    "image": "images/5.png",
+    "options": [
+      { "text": "They're exchanging business cards", "value": "A" },
+      { "text": "They're buying business suits", "value": "B" },
+      { "text": "They're playing a card game", "value": "C" },
+      { "text": "They are shaking hands", "value": "D" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 6,
+    "question": "Look at the picture marked number six in your test book.",
+    "image": "images/6.png",
+    "options": [
+      { "text": "The land is being developed", "value": "A" },
+      { "text": "The trees are being cut down", "value": "B" },
+      { "text": "The machine is being manufactured", "value": "C" },
+      { "text": "The fields are being planted", "value": "D" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 7,
+    "question": "Look at the picture marked number seven in your test book.",
+    "image": "images/7.png",
+    "options": [
+      { "text": "She's cleaning a jar", "value": "A" },
+      { "text": "She's working in a laboratory", "value": "B" },
+      { "text": "She's taking some medicine", "value": "C" },
+      { "text": "She's rearranging test equipment", "value": "D" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 8,
+    "question": "Look at the picture marked number eight in your test book.",
+    "image": "images/8.png",
+    "options": [
+      { "text": "The woman is cutting the grass", "value": "A" },
+      { "text": "The man is holding the dog leashes", "value": "B" },
+      { "text": "The man is giving the animals a bath", "value": "C" },
+      { "text": "The woman is running ahead of the man", "value": "D" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 9,
+    "question": "Look at the picture marked number nine in your test book.",
+    "image": "images/9.png",
+    "options": [
+      { "text": "There are houses along the beachfront", "value": "A" },
+      { "text": "There are residents sunbathing in the garden", "value": "B" },
+      { "text": "There are swimmers relaxing by the pool", "value": "C" },
+      { "text": "There are people lying on the beach", "value": "D" }
+    ],
+    "correctAnswer": "D"
+  },
+  {
+    "id": 10,
+    "question": "Look at the picture marked number ten in your test book.",
+    "image": "images/10.png",
+    "options": [
+      { "text": "The front gate has been left open", "value": "A" },
+      { "text": "The iron fence has fallen down", "value": "B" },
+      { "text": "The path curves around the tree", "value": "C" },
+      { "text": "The park is being used for recreation", "value": "D" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 11,
+    "question": "Where is the conference being held?",
+    "translation": "Hội nghị được tổ chức ở đâu?",
+    "options": [
+      { "text": "At Matt Field Plaza", "value": "A" },
+      { "text": "Annually", "value": "B" },
+      { "text": "I'm feeling confident about it", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 12,
+    "question": "How far is it to the nearest gas station?",
+    "translation": "Trạm xăng gần nhất cách đây bao xa?",
+    "options": [
+      { "text": "About a quarter mile", "value": "A" },
+      { "text": "For ten minutes", "value": "B" },
+      { "text": "Yes nearly", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 13,
+    "question": "Which airline are you flying with?",
+    "translation": "Bạn bay với hãng hàng không nào?",
+    "options": [
+      { "text": "The line was busy", "value": "A" },
+      { "text": "Indonesian Air I think", "value": "B" },
+      { "text": "To file a tax return", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 14,
+    "question": "I need to replace my bedside lamp.",
+    "translation": "Tôi cần thay chiếc đèn ngủ của mình.",
+    "options": [
+      { "text": "Why is it broken?", "value": "A" },
+      { "text": "It will look good in your new place", "value": "B" },
+      { "text": "No don't leave it on its side", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 15,
+    "question": "Can you recommend anything on the menu?",
+    "translation": "Bạn có thể gợi ý món nào trong thực đơn không?",
+    "options": [
+      { "text": "The seafood salad is fantastic", "value": "A" },
+      { "text": "I haven't eaten anything all day", "value": "B" },
+      { "text": "It commences at 4:00", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 16,
+    "question": "How much did it cost to get your jacket fixed?",
+    "translation": "Sửa áo khoác của bạn hết bao nhiêu tiền?",
+    "options": [
+      { "text": "At the repair shop", "value": "A" },
+      { "text": "The dates aren't fixed yet", "value": "B" },
+      { "text": "It was pretty inexpensive", "value": "C" }
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 17,
+    "question": "She can still apply for the vacancy, can't she?",
+    "translation": "Cô ấy vẫn có thể nộp đơn cho vị trí trống đó, đúng không?",
+    "options": [
+      { "text": "No the application period is over", "value": "A" },
+      { "text": "She's on vacation", "value": "B" },
+      { "text": "In the staff room supplies cupboard", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 18,
+    "question": "Who takes care of the charity's finances?",
+    "translation": "Ai phụ trách tài chính của tổ chức từ thiện?",
+    "options": [
+      { "text": "We have an accountant on staff", "value": "A" },
+      { "text": "Yes we provide free health care", "value": "B" },
+      { "text": "For financial advice", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 19,
+    "question": "When does your contract end?",
+    "translation": "Hợp đồng của bạn kết thúc khi nào?",
+    "options": [
+      { "text": "Next June", "value": "A" },
+      { "text": "I missed the ending", "value": "B" },
+      { "text": "It's very compact", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 20,
+    "question": "Nobody is picking up the phone.",
+    "translation": "Không ai nghe điện thoại.",
+    "options": [
+      { "text": "They're in a meeting", "value": "A" },
+      { "text": "No I hung up", "value": "B" },
+      { "text": "Who picked that one", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 21,
+    "question": "It was one of the best novels I've ever read.",
+    "translation": "Đó là một trong những cuốn tiểu thuyết hay nhất tôi từng đọc.",
+    "options": [
+      { "text": "No I haven't read it", "value": "A" },
+      { "text": "Who's it by?", "value": "B" },
+      { "text": "I prefer the blue one", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 22,
+    "question": "Does the subway close at night?",
+    "translation": "Tàu điện ngầm có đóng cửa vào ban đêm không?",
+    "options": [
+      { "text": "Well it costs about $2 per trip", "value": "A" },
+      { "text": "Yes it stops operating at 11:00", "value": "B" },
+      { "text": "Not that way", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 23,
+    "question": "Is the company headquartered in London or Paris?",
+    "translation": "Công ty đặt trụ sở chính ở London hay Paris?",
+    "options": [
+      { "text": "Do you want me to find out?", "value": "A" },
+      { "text": "In the second quarter", "value": "B" },
+      { "text": "Really I love both cities", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 24,
+    "question": "You don't think we're going to be laid off, do you?",
+    "translation": "Bạn không nghĩ chúng ta sẽ bị sa thải chứ?",
+    "options": [
+      { "text": "No our jobs are safe", "value": "A" },
+      { "text": "I've been putting it off", "value": "B" },
+      { "text": "No we weren't going to", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 25,
+    "question": "Who should I talk to about the problem with my computer?",
+    "translation": "Tôi nên nói chuyện với ai về vấn đề máy tính của mình?",
+    "options": [
+      { "text": "Did you fix it?", "value": "A" },
+      { "text": "Call the IT support desk", "value": "B" },
+      { "text": "No you shouldn't", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 26,
+    "question": "Why did they refuse the offer?",
+    "translation": "Tại sao họ từ chối lời đề nghị?",
+    "options": [
+      { "text": "A few of them", "value": "A" },
+      { "text": "Yes they accepted it", "value": "B" },
+      { "text": "They received a better one", "value": "C" }
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 27,
+    "question": "What do you enjoy most about your job?",
+    "translation": "Bạn thích điều gì nhất ở công việc của mình?",
+    "options": [
+      { "text": "The job is okay", "value": "A" },
+      { "text": "My colleagues", "value": "B" },
+      { "text": "No I didn't really", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 28,
+    "question": "Didn't a supervisor tell you to arrange those files?",
+    "translation": "Không phải giám sát đã bảo bạn sắp xếp những hồ sơ đó sao?",
+    "options": [
+      { "text": "Yes I'll do it soon", "value": "A" },
+      { "text": "A wide-range", "value": "B" },
+      { "text": "No I didn't", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 29,
+    "question": "Will the governor attend the Jazz Festival next week?",
+    "translation": "Thống đốc có tham dự lễ hội Jazz tuần tới không?",
+    "options": [
+      { "text": "If his schedule allows", "value": "A" },
+      { "text": "No I didn't see him there", "value": "B" },
+      { "text": "I'm a big fan of jazz music", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 30,
+    "question": "When are we supposed to meet Georgia tonight?",
+    "translation": "Tối nay chúng ta gặp Georgia khi nào?",
+    "options": [
+      { "text": "In the parking lot", "value": "A" },
+      { "text": "Straight after work", "value": "B" },
+      { "text": "Have you posted it on the wall", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 31,
+    "question": "Are you working on anything important at the moment?",
+    "translation": "Hiện tại bạn đang làm việc gì quan trọng không?",
+    "options": [
+      { "text": "I did a workout this morning", "value": "A" },
+      { "text": "No I'm between projects", "value": "B" },
+      { "text": "In a few moments", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 32,
+    "question": "Could you tell me where the milk is please?",
+    "translation": "Bạn có thể cho tôi biết sữa ở đâu không?",
+    "options": [
+      { "text": "In the refrigerator at the back", "value": "A" },
+      { "text": "I'm wearing it now", "value": "B" },
+      { "text": "That's 120 please", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 33,
+    "question": "Is it difficult to find a parking space downtown?",
+    "translation": "Có khó để tìm chỗ đậu xe ở trung tâm không?",
+    "options": [
+      { "text": "Not if you get here early in the morning", "value": "A" },
+      { "text": "It's a strong possibility", "value": "B" },
+      { "text": "I enjoy relaxing in the park", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 34,
+    "question": "Are our reserves invested in stocks or bonds?",
+    "translation": "Quỹ dự trữ của chúng ta đầu tư vào cổ phiếu hay trái phiếu?",
+    "options": [
+      { "text": "Mostly in shares", "value": "A" },
+      { "text": "It's out of stock", "value": "B" },
+      { "text": "You should have reserved one earlier", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 35,
+    "question": "How would you like to take part in a survey?",
+    "translation": "Bạn có muốn tham gia một khảo sát không?",
+    "options": [
+      { "text": "I don't often go to parties", "value": "A" },
+      { "text": "Sure but I only have a few minutes", "value": "B" },
+      { "text": "It took a long time", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 36,
+    "question": "What are you planning to do about the catering?",
+    "translation": "Bạn định làm gì về việc phục vụ ăn uống?",
+    "options": [
+      { "text": "That's our plan", "value": "A" },
+      { "text": "I'll get a specialist to handle it", "value": "B" },
+      { "text": "Yes the food was really delicious", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 37,
+    "question": "Isn't the sales forecast due soon?",
+    "translation": "Dự báo doanh số sắp đến hạn rồi phải không?",
+    "options": [
+      { "text": "Yes the book is overdue", "value": "A" },
+      { "text": "That's what the forecast said", "value": "B" },
+      { "text": "I'm working on it now", "value": "C" }
+    ],
+    "correctAnswer": "C"
+  },
+  {
+    "id": 38,
+    "question": "Do you prefer writing in pen or pencil?",
+    "translation": "Bạn thích viết bằng bút mực hay bút chì?",
+    "options": [
+      { "text": "Pencils break too easily", "value": "A" },
+      { "text": "I can't express myself in writing", "value": "B" },
+      { "text": "May I borrow yours please", "value": "C" }
+    ],
+    "correctAnswer": "A"
+  },
+  {
+    "id": 39,
+    "question": "Would you mind giving me directions to the convention center?",
+    "translation": "Bạn có phiền chỉ đường đến trung tâm hội nghị không?",
+    "options": [
+      { "text": "It's a direct flight", "value": "A" },
+      { "text": "Sorry I'm in a rush", "value": "B" },
+      { "text": "A new invention", "value": "C" }
+    ],
+    "correctAnswer": "B"
+  },
+  {
+    "id": 40,
+    "question": "When you get back to the office please check my messages.",
+    "translation": "Khi bạn quay lại văn phòng hãy kiểm tra tin nhắn của tôi.",
+    "options": [
+      { "text": "In a couple of hours", "value": "A" },
+      { "text": "No it's back that way", "value": "B" },
+      { "text": "That'll be the first thing I do", "value": "C" }
+    ],
+    "correctAnswer": "C"
+  }
+];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        questions.forEach(q => {
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question-container');
+            const imageHtml = q.image ? `<img src="${q.image}" width="400">` : "";
+            questionDiv.innerHTML = `
+                <div class="question">Question ${q.id}. ${q.question}</div>
+                ${imageHtml}
+                <div class="translation">${q.translation}</div>
+                <div class="options">
+                    ${q.options.map(opt => `
+                        <label>
+                            <input type="radio" name="q${q.id}" value="${opt.value}">
+                            ${opt.value}. ${opt.text}
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback${q.id}"></div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const radios = questionDiv.querySelectorAll(`input[name="q${q.id}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const feedback = document.getElementById(`feedback${q.id}`);
+                    if (radio.value === q.correctAnswer) {
+                        feedback.textContent = 'Correct!';
+                        feedback.classList.remove('incorrect');
+                        feedback.classList.add('correct');
+                    } else {
+                        const correctOption = q.options.find(opt => opt.value === q.correctAnswer);
+                        feedback.textContent = `Incorrect. The correct answer is ${correctOption.value}. ${correctOption.text}.`;
+                        feedback.classList.remove('correct');
+                        feedback.classList.add('incorrect');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
