@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Practice - Luyện Thi TOEIC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        /* Test Categories */
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .category-card.reading::before {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .category-card.listening::before {
+            background: linear-gradient(90deg, var(--secondary), var(--warning));
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-card.reading .category-icon {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+        .category-card.listening .category-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--warning));
+        }
+
+        .category-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .category-card p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Test List */
+        .test-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: var(--light);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .test-item:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .test-item-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .test-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .category-card.reading .test-item-icon {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+        .category-card.listening .test-item-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--warning));
+        }
+
+        .test-item-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .test-item-info span {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .test-item-arrow {
+            color: var(--gray);
+            transition: transform 0.3s;
+        }
+
+        .test-item:hover .test-item-arrow {
+            transform: translateX(5px);
+            color: var(--primary);
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4rem;
+        }
+
+        .footer p {
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .categories {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .category-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, var(--success), #34d399);
+            color: white;
+        }
+
+        .badge-audio {
+            background: linear-gradient(135deg, var(--warning), #fbbf24);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                TOEIC Practice
+            </a>
+            <ul class="nav-links">
+                <li><a href="#reading">Reading</a></li>
+                <li><a href="#listening">Listening</a></li>
+                <li><a href="#about">Giới thiệu</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>🎯 Luyện Thi TOEIC Online</h1>
+        <p>Nền tảng luyện thi TOEIC miễn phí với đầy đủ bài tập Reading và Listening. Chọn đáp án và xem kết quả ngay lập tức!</p>
+        
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-number">200+</div>
+                <div class="stat-label">Câu hỏi Reading</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Câu hỏi Listening</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">9</div>
+                <div class="stat-label">Bài Test</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="section-title">
+            <h2>📚 Chọn Bài Thi</h2>
+            <p>Lựa chọn phần thi bạn muốn luyện tập</p>
+        </div>
+
+        <div class="categories">
+            <!-- Reading Section -->
+            <div class="category-card reading" id="reading">
+                <div class="category-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>📖 Reading Comprehension</h3>
+                <p>Luyện tập Part 5, 6, 7 với các câu hỏi về ngữ pháp, từ vựng và đọc hiểu văn bản.</p>
+                
+                <div class="test-list">
+                    <a href="Reading/PartV.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-spell-check"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Part 5 - Incomplete Sentences</h4>
+                                <span>50 câu hỏi • Ngữ pháp & Từ vựng</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Reading/Part6_Full.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Part 6 - Text Completion</h4>
+                                <span>52 câu hỏi • Điền vào đoạn văn</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Reading/Part7_Full.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Part 7 - Reading Comprehension</h4>
+                                <span>Đọc hiểu văn bản</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Listening Section -->
+            <div class="category-card listening" id="listening">
+                <div class="category-icon">
+                    <i class="fas fa-headphones"></i>
+                </div>
+                <h3>🎧 Listening Comprehension</h3>
+                <p>Luyện nghe với các bài test thực tế, bao gồm Part 1, 2, 3, 4 với audio chất lượng cao.</p>
+                
+                <div class="test-list">
+                    <a href="Listening/Jimi_Actual_test_03_part12&34/Jimi_Actual_test_03_part12&34.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Jimi Test 03 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 1, 2, 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Jimi_Actual_test_05_part12&34/Jimi_Actual_test_05_part12&34.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Jimi Test 05 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 1, 2, 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Mozila_Actual_test_07_part12&34/Mozila_Actual_test_07_part1234.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Mozila Test 07 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 1, 2, 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Mozila_Actual_test_08_part12&34/Mozila_Actual_test_08_part1234.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Mozila Test 08 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 1, 2, 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Tomato_Actual_test_03_part3&4/Tomato_Actual_test_03_part3&4.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Tomato Test 03 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Tomato_Actual_test_04_part3&4/Tomato_Actual_test_04_part3&4.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Tomato Test 04 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Tomato_Actual_test_05_part3&4/Tomato_Actual_test_05_part3&4.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Tomato Test 05 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 3, 4</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Tomato_Actual_test_13_part1&2/Tomato_Actualtest13_part1&2.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Tomato Test 13 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 1, 2</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                    
+                    <a href="Listening/Tomato_Actual_test_14_part1&2/Tomato_Actualtest14_part1&2.html" class="test-item">
+                        <div class="test-item-left">
+                            <div class="test-item-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="test-item-info">
+                                <h4>Tomato Test 14 <span class="badge badge-audio">Audio</span></h4>
+                                <span>Part 1, 2</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right test-item-arrow"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features" id="about">
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h4>Phản hồi tức thì</h4>
+                <p>Xem kết quả ngay sau khi chọn đáp án</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h4>Theo dõi tiến độ</h4>
+                <p>Điểm số được cập nhật realtime</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-volume-up"></i>
+                <h4>Audio chất lượng</h4>
+                <p>File nghe rõ ràng, chuẩn format TOEIC</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h4>Responsive</h4>
+                <p>Học mọi lúc mọi nơi trên mọi thiết bị</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 TOEIC Practice by @nntrang | Luyện thi TOEIC miễn phí</p>
+    </footer>
+</body>
+</html>
